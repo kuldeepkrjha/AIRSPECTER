@@ -39,7 +39,7 @@ To utilize AIR SPECTER, the following hardware and software requirements are nec
 The AIR SPECTER tool operates within the following overall system architecture:
 
 
-The architecture comprises the Raspberry Pi 3+ as the central processing unit, an external NIC card for wireless communication, and peripherals for setup and interaction. The Rogue AP Creation Software facilitates the creation of a rogue access point, while the Monitor Mode Tools enable the monitoring and analysis of network packets.
+![AIR SPECTER Architecture]()
 
 ## Conclusion
 
