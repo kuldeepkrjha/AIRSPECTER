@@ -5,6 +5,7 @@
 
 AIR SPECTER is a hardware tool designed using a Raspberry Pi 3+ model and an external NIC card. It is developed with the objective of creating a rogue access point (AP) to compromise Wi-Fi networks and perform network traffic monitoring and manipulation. The tool aims to gain unauthorized access to sensitive information and systems connected within the target organization's network.
 
+![AIR SPECTER Architecture](arch_dgr/logo.png)
 
 
 
