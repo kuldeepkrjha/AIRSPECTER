@@ -19,7 +19,6 @@ To connect to a remote server via SSH, use the following command in the terminal
 ```bash
 ssh username@remote_server_ip
 
-####For key based secured authentication
+#For key based secured authentication
 
-'''bash
 ssh -i /path/to/private_key username@remote_server_ip
