@@ -25,9 +25,7 @@ The key features and functionality of the AIR SPECTER tool include:
 
 - **Data Extraction:** The tool focuses on extracting sensitive information from the intercepted network traffic, such as login credentials, personal data, or any other valuable information that can be exploited for unauthorized access.
 
-- **Reporting and Visualization:** AIR SPECTER generates comprehensive reports based on the findings and analysis of the intercepted network traffic. It presents statistics, charts, and visual representations to facilitate the understanding of captured data.
-
-- **Countermeasures:** The tool suggests countermeasures and security enhancements for the target network, providing recommendations to address identified vulnerabilities, strengthen network security, and prevent future attacks.
+- **Countermeasures:** The tool suggests countermeasures and security enhancements for the target network, providing recommendations to address identified vulnerabilities, strengthen network security, and prevent future attacks by scanning vulnerable areas inside network.
 
 ## Hardware and Software Requirements
 
@@ -36,7 +34,7 @@ To utilize AIR SPECTER, the following hardware and software requirements are nec
 - Raspberry Pi 3+ model
 - External network interface card (NIC) for wireless communication and monitor mode support
 - Power supply, SD card, HDMI display, keyboard, and mouse for Raspberry Pi setup
-- Operating system compatible with Raspberry Pi
+- Operating system compatible with Raspberry Pi(kali linux, raspberry os)
 
 ## Overall System Architecture
 
