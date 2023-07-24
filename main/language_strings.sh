@@ -198,8 +198,8 @@ function initialize_language_strings() {
 	arr["ENGLISH",56]="${blue_color}3.  Put interface in managed mode"
 	arr["ENGLISH",57]="10. Enterprise attacks menu"
 	arr["ENGLISH",58]="9.  Polish"
-	arr["ENGLISH",59]="${blue_color}0.  Return to main menu"
-	arr["ENGLISH",60]="11. About & Credits / Sponsorship mentions"
+	arr["ENGLISH",59]="${blue_color}0. Return to main menu"
+	arr["ENGLISH",60]="11. MITM tools menu"
 	arr["ENGLISH",61]="0.  Exit script"
 	arr["ENGLISH",62]="${blue_color}8.  Beacon flood attack"
 	arr["ENGLISH",63]="${blue_color}9.  Auth DoS attack"
@@ -247,7 +247,7 @@ function initialize_language_strings() {
 	arr["ENGLISH",105]="About & Credits"
 	arr["ENGLISH",106]="Exiting"
 	arr["ENGLISH",107]="Join the project at \${normal_color}\${urlgithub}"
-	arr["ENGLISH",108]="Let's check if you have installed what script needs"
+	arr["ENGLISH",108]="[Let's check if you have installed what script needs]"
 	arr["ENGLISH",109]="Essential tools: checking..."
 	arr["ENGLISH",110]="Your distro has all necessary essential tools. Script can continue..."
 	arr["ENGLISH",111]="You need to install some essential tools before running this script"
@@ -365,7 +365,7 @@ function initialize_language_strings() {
 	arr["ENGLISH",225]="The script can't check if there is a new version because you haven't installed update tools needed"
 	arr["ENGLISH",226]="Update tools: checking..."
 	arr["ENGLISH",227]="Working...  "
-	arr["ENGLISH",228]="                             Developed by \${author}"
+	arr["ENGLISH",228]="Episode 1072"
 	arr["ENGLISH",229]="\${yellow_color}hashcat CPU/GPU attacks"
 	arr["ENGLISH",230]="\${blue_color}3.  (hashcat) Dictionary attack against Handshake capture file"
 	arr["ENGLISH",231]="\${blue_color}4.  (hashcat) Bruteforce attack against Handshake capture file"
@@ -850,6 +850,16 @@ function initialize_language_strings() {
 	arr["ENGLISH",712]="Another way to contribute to the project is buying some merchandising (mugs, T-shirts, etc.). A little portion of each payment (after deducting material, printing and shipping) will be to support the project. Check the merchandising online shop at: \${normal_color}https://Airspector.creator-spring.com/"
 	arr["ENGLISH",713]="Target AP's BSSID was detected as \"\${normal_color}\${routervendor}\${blue_color}\" vendor"
 	arr["ENGLISH",714]="No vendor was detected for the target AP's BSSID. Default captive portal template will be used"
+	arr["ENGLISH",715]="1. Bettercap"
+	arr["ENGLISH",716]="2. Ettercap"
+	arr["ENGLISH",717]="Tools menu${yellow_color}(Other)"
+	arr["ENGLISH",718]="2. Beef"
+	arr["ENGLISH",719]="3. ReconDog"
+	arr["ENGLISH",720]="4. SQLmap"
+	arr["ENGLISH",721]="12. MITM attack menu "
+	arr["ENGLISH",722]="13. ${yellow_color}Network-manager restart"
+	
+	
 	
 }
 
