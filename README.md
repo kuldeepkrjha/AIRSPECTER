@@ -41,7 +41,7 @@ To utilize AIR SPECTER, the following hardware and software requirements are nec
 The AIR SPECTER tool operates within the following overall system architecture:
 
 
-![AIR SPECTER Architecture](arch_dgr/sysarc.png)
+![AIR SPECTER Architecture](arch_dgr/sysarch.png)
 
 ## Conclusion
 
