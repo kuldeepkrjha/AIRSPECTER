@@ -138,7 +138,7 @@ function initialize_language_strings() {
 	enterprise_texts["ENGLISH",11]="Airspector. Captured passwords during Enterprise Evil Twin"
 	
 	declare -gA footer_texts
-	footer_texts["ENGLISH",0]="If you enjoyed the script and found it useful, you can support the project by making a donation. Through PayPal (${mail}) or sending a fraction of cryptocurrency (Bitcoin, Ethereum, Litecoin...). Any amount, no matter how small (1, 2, 5 $/€) is welcome. More information and direct links to do it at: ${urlgithub_wiki}/Contributing"
+	footer_texts["ENGLISH",0]="If you enjoyed the script and found it useful, you can support the project by making a donation. Through PayPal (${mail}) or sending a fraction of cryptocurrency (Bitcoin, Ethereum, Litecoin...). Any amount, no matter how small (1, 2, 5 $/€) is welcome. More information and direct links to do it at: don't known"
 
 	declare -gA arr
 	arr["ENGLISH",0]="This interface \${current_iface_on_messages} is already in managed mode"
@@ -153,7 +153,7 @@ function initialize_language_strings() {
 	arr["ENGLISH",11]="${red_color}Exiting Airspector script \${normal_color}\${Airspector_version}"
 	arr["ENGLISH",12]="\${red_color}Interruption detected. \${green_color}Do you really want to exit? \${normal_color}\${visual_choice}"
 	arr["ENGLISH",13]="This interface \${current_iface_on_messages} is not a wifi card. It doesn't support monitor mode"
-	arr["ENGLISH",14]="This interface \${current_iface_on_messages} is not in monitor mode"
+	arr["ENGLISH",14]="OOPS! This interface \${current_iface_on_messages} is in \${ifacemode} mode"
 	arr["ENGLISH",15]="The interface changed its name while setting in managed mode. Autoselected"
 	arr["ENGLISH",16]="Managed mode now is set on \${current_iface_on_messages}"
 	arr["ENGLISH",17]="Setting your interface in managed mode..."
@@ -181,7 +181,7 @@ function initialize_language_strings() {
 	arr["ENGLISH",39]="Auth DoS attack chosen (monitor mode needed)"
 	arr["ENGLISH",40]="Michael Shutdown (TKIP) attack chosen (monitor mode needed)"
 	arr["ENGLISH",41]="No interface selected. You'll be redirected to select one"
-	arr["ENGLISH",42]="Interface \${pink_color}\${current_iface_on_messages}\${blue_color} Interface Mode: \${pink_color}\${ifacemode}\${normal_color}"
+	arr["ENGLISH",42]="${red_color}[${green_color}*${red_color}]${blue_color}Interface name: \${green_color}\${current_iface_on_messages}\${blue_color} ${red_color}[${green_color}*${red_color}]${blue_color}Interface Mode: \${green_color}\${ifacemode}\${normal_color}"
 	arr["ENGLISH",43]="Selected BSSID: \${pink_color}\${bssid}\${normal_color}"
 	arr["ENGLISH",44]="Selected channel: \${pink_color}\${channel}\${normal_color}"
 	arr["ENGLISH",45]="Selected ESSID: \${pink_color}\${essid}\${blue_color} <- can't be used"
@@ -204,7 +204,7 @@ function initialize_language_strings() {
 	arr["ENGLISH",62]="${red_color}[${yellow_color}8${red_color}]${lightcyan_color}  Beacon flood attack"
 	arr["ENGLISH",63]="${red_color}[${yellow_color}9${red_color}]${lightcyan_color}  Auth DoS attack"
 	arr["ENGLISH",64]="${red_color}[${yellow_color}10${red_color}]${lightcyan_color} Michael shutdown exploitation (TKIP) attack"
-	arr["ENGLISH",65]="Exploring for targets option chosen (monitor mode needed)"
+	arr["ENGLISH",65]="Target Exploration required moniter mode!"
 	arr["ENGLISH",66]="Selected interface \${current_iface_on_messages} is in monitor mode. Exploration can be performed"
 	arr["ENGLISH",67]="WEP filter enabled in scan. When started, ${pink_color}Tap [Ctrl+C] to stop..."
 	arr["ENGLISH",68]="No networks found"
@@ -389,7 +389,7 @@ function initialize_language_strings() {
 	arr["ENGLISH",249]="5.  Portuguese"
 	arr["ENGLISH",250]="If you see any bad translation or just want \${yellow_color}\${pending_of_translation}\${pink_color} marks to dissapear, write me to \${normal_color}\${mail}\${pink_color} to collaborate with translations"
 	arr["ENGLISH",251]="You have chosen the same language that was selected. No changes will be done"
-	arr["ENGLISH",252]="${red_color}[${yellow_color}5${red_color}]${lightcyan_color}  Evil Twin attacks menu"
+	arr["ENGLISH",252]="${red_color}[${yellow_color}5${red_color}]${lightcyan_color}  Evil Twin attacks menu${red_color}[${yellow_color}Active-attack${red_color}]${lightcyan_color}"
 	arr["ENGLISH",253]="Evil Twin attacks menu"
 	arr["ENGLISH",254]="In order to use the Evil Twin just AP and sniffing attacks, you must have another one interface in addition to the wifi network interface will become the AP, which will provide internet access to other clients on the network. This doesn't need to be wifi, can be ethernet"
 	arr["ENGLISH",255]="\${yellow_color}without sniffing, just AP"
@@ -573,7 +573,7 @@ function initialize_language_strings() {
 	arr["ENGLISH",434]="WEP \"All-in-One\" attack has been started. ${pink_color}Tap [Enter] key on this window to stop it"
 	arr["ENGLISH",435]="Error trying to change interface mode. During the process the interface name must be changed, but it looks like you already have an interface occupying the name that would be needed (\${normal_color}\${desired_interface_name}\${pink_color})"
 	arr["ENGLISH",436]="The hashcat version you have installed (\${hashcat_version}) is greater or equal than \${hashcat_hccapx_version} so you need to convert the capture files to \"hccapx\" format, Airspector will do this automatically. To do this you need a converter that is not present on your system (hashcat-utils package), install it to be able to perform this attack"
-	arr["ENGLISH",437]="If you enjoyed the script and found it useful, you can support the project by making a donation. Through PayPal (\${normal_color}\${mail}\${pink_color}) or sending a fraction of cryptocurrency (\${normal_color}Bitcoin, Ethereum, Litecoin...\${pink_color}). Any amount, no matter how small (1, 2, 5 $/€) is welcome. More information and direct links to do it at: \${normal_color}\${urlgithub_wiki}/Contributing"
+	arr["ENGLISH",437]="If you enjoyed the script and found it useful, you can support the project by making a donation. Through PayPal (\${normal_color}\${mail}\${pink_color}) or sending a fraction of cryptocurrency (\${normal_color}Bitcoin, Ethereum, Litecoin...\${pink_color}). Any amount, no matter how small (1, 2, 5 $/€) is welcome. More information and direct links to do it at: \${normal_color}don't know"
 	arr["ENGLISH",438]="We are looking for translators to other languages. If you want to see Airspector in your native language and you also know english, contact us. More information at: \${normal_color}\${urlgithub_wiki}/Contributing"
 	arr["ENGLISH",439]="\${lightcyan_color}You haven't selected any target, you'll be prompted to input data manually. \${green_color}Do you want to continue? \${normal_color}\${visual_choice}"
 	arr["ENGLISH",440]="Aircrack trophy file generated successfully at [\${normal_color}\${aircrackpotenteredpath}\${blue_color}]"
@@ -629,7 +629,7 @@ function initialize_language_strings() {
 	arr["ENGLISH",491]="Arcadyan algorithm is not useful for the selected target network, a valid value can't be calculated"
 	arr["ENGLISH",492]="The Arcadyan algorithm can't be calculated. Although you chose the bully option for the attack, you need to use wash (included in reaver package) to calculate that PIN and you don't have it installed. The script will continue the attack without including it"
 	arr["ENGLISH",493]="The Arcadyan algorithm PIN has already been calculated for this target (\${normal_color}\${wps_data_array[\${wps_bssid},'Arcadyan']}\${yellow_color}). There is no need to calculate it again"
-	arr["ENGLISH",494]="1\${blue_color}4. Offline PIN generation using algorithms and database"
+	arr["ENGLISH",494]="${red_color}[${yellow_color}14${red_color}]${lightcyan_color} Offline PIN generation using algorithms and database"
 	arr["ENGLISH",495]="Offline PIN generation menu"
 	arr["ENGLISH",496]="${red_color}[${yellow_color}5${red_color}]${lightcyan_color}  Search in PIN database"
 	arr["ENGLISH",497]="${red_color}[${yellow_color}0${red_color}] ${lightcyan_color} Return to WPS attacks menu"
@@ -647,9 +647,9 @@ function initialize_language_strings() {
 	arr["ENGLISH",509]="If you want to integrate \"DoS pursuit mode\" on an Evil Twin attack, another additional wifi interface in monitor mode will be needed to be able to perform it"
 	arr["ENGLISH",510]="On this screen, it's supposed an additional wifi interface is chosen, but you don't have anyone at this moment"
 	arr["ENGLISH",511]="Select another wireless interface:"
-	arr["ENGLISH",512]="\"DoS pursuit mode\" interface: \${pink_color}\${secondary_wifi_interface}\${normal_color}"
+	arr["ENGLISH",512]="\"DoS pursuit mode\" interface name: \${pink_color}\${secondary_wifi_interface}\${normal_color}"
 	arr["ENGLISH",513]="Interface will be tried to be changed to monitor mode automatically"
-	arr["ENGLISH",514]="Interface: \${pink_color}\${current_iface_on_messages}\n\${blue_color}Mode: \${pink_color}\${ifacemode}\n\${blue_color}Bands: \${pink_color}\${interfaces_band_info['main_wifi_interface','text']}\${normal_color}"
+	arr["ENGLISH",514]="${red_color}[${green_color}*${red_color}]${blue_color}Chipset:\${green_color}\${chipset}\n\${blue_color}${red_color}[${green_color}*${red_color}]${blue_color}Interface name: \${green_color}\${current_iface_on_messages}\n\${blue_color}${red_color}[${green_color}*${red_color}]${blue_color}Interface Mode: \${green_color}\${ifacemode}\n\${blue_color}${red_color}[${green_color}*${red_color}]${blue_color}Frequency: \${green_color}\${interfaces_band_info['main_wifi_interface','text']}\${normal_color}"
 	arr["ENGLISH",515]="You have selected a 5Ghz band channel but your wifi card doesn't support 5Ghz or it is disabled. The operation can't be performed"
 	arr["ENGLISH",516]="It is known that the software used in the 5Ghz band still presents some problems sometimes. For example airodump, that when scanning networks can show a value \"-1\" on channel depending on the card chipset and the driver. It is also known that Ralink chipsets sometimes are getting errors on high channels \""
 	arr["ENGLISH",517]="Set channel (2.4Ghz 1-14) or (5Ghz 36|38|40|44|46|48|52|54|56|60|62|64|100|102|104|108|110|112):"
@@ -669,8 +669,8 @@ function initialize_language_strings() {
 	arr["ENGLISH",531]="Contratulations!! It seems you captured some plain text password/s"
 	arr["ENGLISH",532]="Contratulations!! It seems you captured hashes and plain text passwords"
 	arr["ENGLISH",533]="The captured files were saved on directory [\${normal_color}\${enterprise_completepath}\${blue_color}]\${normal_color}"
-	arr["ENGLISH",534]="${red_color}[${yellow_color}1${red_color}]1.${lightcyan_color}  Personal"
-	arr["ENGLISH",535]="${red_color}[${yellow_color}2${red_color}]2.${lightcyan_color}  Enterprise"
+	arr["ENGLISH",534]="${red_color}[${yellow_color}1${red_color}]${lightcyan_color}  Personal"
+	arr["ENGLISH",535]="${red_color}[${yellow_color}2${red_color}]${lightcyan_color}  Enterprise"
 	arr["ENGLISH",536]="${red_color}[${yellow_color}0${red_color}]${lightcyan_color}  Return to offline WPA/WPA2 decrypt menu"
 	arr["ENGLISH",537]="Do you want to try to decrypt captured stuff? \${blue_color}Asleap tool will be used. If you answer no \"n\" you'll can try to do it later using hashcat or john the ripper from the offline WPA/WPA2 decrypt menu \${normal_color}\${visual_choice}"
 	arr["ENGLISH",538]="The password for the username \${normal_color}\${enterprise_username}\${blue_color} will be tried to be decrypted with asleap tool using challenge and response: \${normal_color}\${enterprise_captured_challenges_responses[\${enterprise_username}]}"
@@ -859,6 +859,11 @@ function initialize_language_strings() {
 	arr["ENGLISH",721]="${red_color}[${yellow_color}11${red_color}]${lightcyan_color} MITM attack menu "
 	arr["ENGLISH",722]="${red_color}[${yellow_color}0${red_color}]${lightcyan_color}  ${yellow_color}Network-manager restart"
 	arr["ENGLISH",723]="\${yellow_color}Evil Twin for Enterprise Network"
+	arr["ENGLISH",724]="${white_color}Interface-Setting"${red_color}
+	arr["ENGLISH",725]="${white_color}Attacks${red_color}"
+	arr["ENGLISH",726]="${red_color}[${yellow_color}6${red_color}]${lightcyan_color} ChopChop Attack"
+	arr["ENGLISH",727]="${red_color}[${yellow_color}11${red_color}]${lightcyan_color}EAPOL Start & Logoff Packet Injection "
+	
 	
 	
 	
@@ -870,7 +875,7 @@ function replace_string_vars() {
 	local message
 	message=${arr[${1},${2}]}
 	parsed_message=$(echo "${message}" | sed -E 's/\"/\\\"/g')
-	eval "echo -e \"${parsed_message}\""
+	eval "echo -e  \"${parsed_message}\""
 }
 
 #Print a language string
@@ -913,7 +918,7 @@ function language_strings() {
 			read -p "${message}" -r
 		;;
 		"multiline")
-			echo -ne "${message}"
+			echo -ne "${message}\t\t"
 		;;
 		"hint")
 			if [ "${is_rtl_language}" -eq 1 ]; then
@@ -930,6 +935,12 @@ function language_strings() {
 		;;
 		"under_construction")
 			echo_red_slim "${message} (${under_constructionvar})"
+		;;
+		"tab")
+			echo -e "\t${message}"
+		;;
+		"mark_box")
+			echo -e "${red_color}[${green_color}*${red_color}]${message}"
 		;;
 		*)
 			if [ -z "${3}" ]; then
