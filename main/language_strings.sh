@@ -200,7 +200,7 @@ function initialize_language_strings() {
 	arr["ENGLISH",58]="${red_color}[${yellow_color}9${red_color}]${lightcyan_color}  Polish"
 	arr["ENGLISH",59]="${red_color}[${yellow_color}0${red_color}]${lightcyan_color}  Main Menu"
 	arr["ENGLISH",60]="${red_color}[${yellow_color}11${red_color}]${lightcyan_color} MITM tools menu"
-	arr["ENGLISH",61]="${red_color}[${yellow_color}12${red_color}]  Exit script"
+	arr["ENGLISH",61]="${red_color}[${yellow_color}13${red_color}]  Exit script"
 	arr["ENGLISH",62]="${red_color}[${yellow_color}8${red_color}]${lightcyan_color}  Beacon flood attack"
 	arr["ENGLISH",63]="${red_color}[${yellow_color}9${red_color}]${lightcyan_color}  Auth DoS attack"
 	arr["ENGLISH",64]="${red_color}[${yellow_color}10${red_color}]${lightcyan_color} Michael shutdown exploitation (TKIP) attack"
