@@ -1,0 +1,23 @@
+Airspecter attack details
+
+Dos attack:------------------------------------------------
+mdk4 deauth attack: MDK4 is a tool for wireless network auditing. It's known for deauth attacks, sending 			fake deauthentication frames to devices, temporarily disconnecting them from Wi-Fi networks. This disruption can help identify network vulnerabilities. Using MDK4 for unauthorized purposes is illegal and unethical. Always ensure responsible and ethical use for security testing with proper authorization.
+
+Airplay deauth attack: A deauth airplay attack involves using deauthentication frames to disrupt devices' connections to an AirPlay-enabled network. This can cause AirPlay streaming interruptions, highlighting potential vulnerabilities in the network. However, such attacks should only be conducted in authorized and controlled environments for legitimate security testing purposes. Unauthorized use is illegal and unethical.
+
+WIDS/WIPS/WDS Confusion attack:
+
+    WIDS: Monitors wireless networks for security breaches.
+    WIPS: Detects and actively prevents unauthorized access and attacks.
+    WDS: Connects multiple access points for extended coverage.
+    Confusion Attack: Disrupting or confusing these systems.
+
+Beacon flood attack:A beacon flood attack floods a wireless network with numerous beacon frames, potentially causing network congestion and disruptions to normal operations.
+
+Auth DoS attack: An Auth DoS attack flodd a wireless network with numerous authentication packet, potentially causing network congestion and disruptions to normal operations
+
+Evil twin attack: An evil twin attack is a type of Wi-Fi attack where an attacker sets up a rogue wireless access point with a name (SSID) that is identical or similar to a legitimate network. This tricks users into connecting to the attacker's malicious access point, potentially allowing the attacker to intercept and manipulate their traffic. This attack can lead to data theft, credential harvesting, and other malicious activities.
+
+	a: with sniffing: An evil twin attack with sniffing involves creating a fake wireless access point (evil twin) that mimics a legitimate network. The attacker captures and analyzes the network traffic of devices connecting to the malicious access point. This can lead to the interception of sensitive information, such as login credentials and data, jeopardizing the security and privacy of users.
+	b: with sslstrip: An evil twin attack with SSLstrip involves creating a rogue wireless access point (evil twin) to deceive users into connecting. The attacker uses SSLstrip to intercept and modify HTTP connections, stripping away SSL encryption. This allows the attacker to capture sensitive information, like login credentials, as it's transmitted over unencrypted connections. It's a dangerous attack that highlights the importance of using HTTPS for secure communication.
+	c: with captive portal: An evil twin attack with a captive portal involves creating a fake wireless access point (evil twin) that mimics a legitimate network. When users connect, they are redirected to a captive portal, often resembling a login page. The attacker can harvest login credentials or personal data by tricking users into entering information. This attack exploits users' trust in public Wi-Fi networks and underscores the need for caution and secure browsing practices.
